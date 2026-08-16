@@ -1,30 +1,24 @@
-// RIFT//CTRL Steam app-list generator.
+// RIFT//CTRL app-list builder — publishes data/riftctrl_appid.json, the single file RIFT consumes.
 //
-// Publishes a daily JSON app list that RIFT//CTRL consumes as its first app-id source. The goal is
-// a CURRENT list that includes dedicated-server "tool" apps (e.g. Palworld Dedicated Server
-// #2394010) — which the store-gated keyed endpoint does NOT return, so a bulk source that isn't
-// store-gated is required.
+// It's the UNION of two things this repo produces:
+//   1. keyed  — the current base catalog from IStoreService/GetAppList (STEAM_API_KEY). ~180k apps:
+//      games + software. Store-gated, so it does NOT include tool-type dedicated servers.
+//   2. tracked — data/tracked_servers.json, the dedicated servers the PICS watcher accumulates (and
+//      any one-time seed). This is what fills the tool-server gap the keyed list can't.
 //
-// Two candidate sources, both tried, results reported per-source (NO seeding — the published list
-// is exactly what the sources return, so #2394010's presence is a real verification):
-//   1. steam-v2  — keyless ISteamApps/GetAppList/v2. This is the raw, non-store-gated full list that
-//      historically included Tools. It 404s from the Core, but GitHub's runner is on a different
-//      network and may reach it — that's the whole reason to try it here.
-//   2. keyed     — IStoreService/GetAppList (optional STEAM_API_KEY). Current + broad but STORE-GATED
-//      (confirmed to omit tool-type servers). Kept as a freshness/coverage floor for store apps.
-//
-// If neither yields #2394010, the log says so plainly and the next step is Steam PICS (the client
-// protocol) — we do NOT hand-add it.
+// (The old keyless ISteamApps/GetAppList/v2 is dead everywhere — 404 from the Core AND from GitHub —
+// so it's gone.) No seeding here; #2394010's presence is a real signal of whether the watcher/seed
+// has done its job.
 
-import { writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT_PATH = `${ROOT}/data/riftctrl_appid.json`;
-const VERIFY_APPID = 2394010; // Palworld Dedicated Server — the known Tool server we verify against.
+const TRACK_PATH = `${ROOT}/data/tracked_servers.json`;
+const VERIFY_APPID = 2394010; // Palworld Dedicated Server — verify the server slice is working.
 
-const V2_URL = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
 const STORESERVICE_URL = "https://api.steampowered.com/IStoreService/GetAppList/v1/";
 
 function clean(apps) {
@@ -39,29 +33,10 @@ function clean(apps) {
 
 const has = (apps) => apps.some((a) => a.appid === VERIFY_APPID);
 
-/** Source 1: keyless raw full list. Never throws — reports ok/count and whether it carries the
- * verify app, so we learn if GitHub can reach what the Core can't. */
-async function fetchV2() {
-  try {
-    const res = await fetch(V2_URL, { redirect: "follow", signal: AbortSignal.timeout(120_000) });
-    if (!res.ok) {
-      console.log(`[v2] HTTP ${res.status} — v2 did not respond from this runner`);
-      return [];
-    }
-    const apps = clean((await res.json())?.applist?.apps);
-    console.log(`[v2] ok: ${apps.length} apps · #${VERIFY_APPID} present: ${has(apps)}`);
-    return apps;
-  } catch (err) {
-    console.log(`[v2] failed: ${err instanceof Error ? err.message : err}`);
-    return [];
-  }
-}
-
-/** Source 2: keyed, paginated store list. Returns [] if no key; throws only on a mid-pull HTTP
- * error (so we don't publish a silently-truncated list). */
+/** Base catalog: keyed, paginated store list. [] if no key. Throws on a mid-pull HTTP error. */
 async function fetchKeyed(key) {
   if (!key) {
-    console.log("[keyed] no STEAM_API_KEY — skipping keyed source");
+    console.log("[keyed] no STEAM_API_KEY — skipping base catalog");
     return [];
   }
   const byId = new Map();
@@ -79,11 +54,23 @@ async function fetchKeyed(key) {
     lastAppid = response.last_appid;
   }
   const apps = [...byId.values()];
-  console.log(`[keyed] ok: ${apps.length} apps · #${VERIFY_APPID} present: ${has(apps)}`);
+  console.log(`[keyed] ${apps.length} apps · #${VERIFY_APPID} present: ${has(apps)}`);
   return apps;
 }
 
-/** Union by appid, first writer wins the name, sorted by appid. */
+/** Dedicated servers the watcher (and any seed) have accumulated. */
+async function readTrackedServers() {
+  try {
+    const doc = JSON.parse(await readFile(TRACK_PATH, "utf8"));
+    const apps = clean(doc?.applist?.apps);
+    console.log(`[tracked] ${apps.length} servers · #${VERIFY_APPID} present: ${has(apps)}`);
+    return apps;
+  } catch {
+    console.log("[tracked] none yet");
+    return [];
+  }
+}
+
 function union(...lists) {
   const byId = new Map();
   for (const list of lists) for (const app of list) if (!byId.has(app.appid)) byId.set(app.appid, app);
@@ -91,34 +78,29 @@ function union(...lists) {
 }
 
 async function main() {
-  const v2 = await fetchV2();
   const keyed = await fetchKeyed(process.env.STEAM_API_KEY);
+  const tracked = await readTrackedServers();
 
-  const merged = union(v2, keyed);
+  const merged = union(tracked, keyed); // tracked first so curated server names win
   if (merged.length === 0) {
-    throw new Error("No source returned any apps (v2 unreachable AND no/failed keyed pull).");
+    throw new Error("No apps to publish (no key and no tracked servers).");
   }
 
   const finalHas = has(merged);
-  console.log(
-    `[verify] #${VERIFY_APPID} present — final: ${finalHas} · v2: ${has(v2)} · keyed: ${has(keyed)}`,
-  );
+  console.log(`[verify] #${VERIFY_APPID} present — final: ${finalHas} · keyed: ${has(keyed)} · tracked: ${has(tracked)}`);
   if (!finalHas) {
-    console.log(
-      `::warning::#${VERIFY_APPID} in NO source (v2 unreachable/omits it, keyed is store-gated). ` +
-        `Do NOT seed. Next real fix: Steam PICS enumeration.`,
-    );
+    console.log(`::warning::#${VERIFY_APPID} still missing — the watcher hasn't caught it yet (or add a seed).`);
   }
 
   await mkdir(dirname(OUT_PATH), { recursive: true });
   const document = {
     generatedAt: new Date().toISOString(),
-    sources: { v2: v2.length, keyed: keyed.length },
+    sources: { keyed: keyed.length, tracked: tracked.length },
     count: merged.length,
     applist: { apps: merged },
   };
   await writeFile(OUT_PATH, JSON.stringify(document), "utf8");
-  console.log(`[main] wrote ${merged.length} apps → ${OUT_PATH}`);
+  console.log(`[main] wrote ${merged.length} apps → data/riftctrl_appid.json`);
 }
 
 main().catch((err) => {

@@ -1,15 +1,20 @@
 name: Publish Steam app list
 
-# Runs daily (and on demand) to refresh data/riftctrl_appid.json, the app list RIFT//CTRL consumes
-# as its first app-id source. Requires the STEAM_API_KEY repo secret (free — see README).
+# Runs a few times a day. Two steps produce data the RIFT dashboard reads:
+#   1. watch-servers.mjs — anonymous Steam login; records dedicated servers seen changing in PICS
+#      (fills the tool-server gap no web API exposes). Accumulates into data/tracked_servers.json.
+#   2. build-applist.mjs — pulls the keyed base catalog and UNIONs the tracked servers into the
+#      single published file data/riftctrl_appid.json.
+# Requires the STEAM_API_KEY repo secret for the base catalog (free — see README). The watcher needs
+# no key.
 
 on:
   schedule:
-    - cron: "17 5 * * *" # 05:17 UTC daily
+    - cron: "0 */6 * * *" # every 6 hours (keeps the PICS change window small)
   workflow_dispatch: {}
 
 permissions:
-  contents: write # allow the job to commit the refreshed list
+  contents: write
 
 jobs:
   publish:
@@ -21,7 +26,13 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Build app list
+      - name: Install dependencies
+        run: npm install
+
+      - name: Watch PICS for dedicated servers
+        run: node scripts/watch-servers.mjs
+
+      - name: Build published list
         env:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
         run: node scripts/build-applist.mjs
@@ -30,7 +41,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/riftctrl_appid.json
+          git add data/
           if git diff --staged --quiet; then
             echo "No changes to publish."
           else
