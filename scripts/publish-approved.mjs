@@ -49,18 +49,20 @@ function findApproval(actions) {
     (a.type === 'moveCardToBoard' && a.data?.list?.id === LIST));
 }
 
-// The card JSON is the ```json fenced block in the description. Large files are split: the
-// description holds part 1 and ```json comments hold the rest, oldest first. Their contents are
-// concatenated in that order and parsed as one document. Comments without a json fence are ignored,
-// so the human-readable summary comment can sit on the same card.
+// The card JSON lives in ```json fences. A document is usually one fence in a checklist item, because
+// a checklist item holds 16 KB while a card description holds ~2 KB (and the Trello connector Claude
+// posts through cannot write comments at all). Every fence found on the card is concatenated in a fixed
+// order — description, then checklist items, then comments — and parsed as ONE document, so a document
+// too big for one place can still be split across several. Text without a json fence is ignored, which
+// is what lets the human-readable review summary sit in the description.
 const FENCE = /```json\s*\n?([\s\S]*?)```/g;
 // Strip only the newlines the fence itself adds. A raw newline cannot appear inside a JSON string
 // literal, so this is always safe; spaces are kept because they can be significant.
 const fences = (text = '') => [...String(text).matchAll(FENCE)].map((m) => m[1].replace(/^[\r\n]+|[\r\n]+$/g, ''));
 
-function extractJson(desc, comments) {
-  const parts = [...fences(desc), ...comments.flatMap((c) => fences(c))];
-  if (parts.length === 0) throw new Error('no ```json fenced block on the card');
+function extractJson(desc, checkItems, comments) {
+  const parts = [...fences(desc), ...checkItems.flatMap((t) => fences(t)), ...comments.flatMap((c) => fences(c))];
+  if (parts.length === 0) throw new Error('no ```json fenced block on the card (description, checklist items or comments)');
   const raw = parts.join('');
   try {
     return JSON.parse(raw);
@@ -93,11 +95,15 @@ for (const card of cards) {
       (a.idMemberCreator !== APPROVER || (a.appCreator && !ALLOW_APP_MOVES)));
     if (later.length) { r.detail = `card changed after approval by another member or an integration (${later.map((a) => a.type).join(', ')}); move it out and back into Approved to re-approve`; continue; }
 
+    const checklists = await trello(`/cards/${card.id}/checklists`, { checkItems: 'all', fields: 'name,pos' });
+    const checkItems = checklists
+      .sort((a, b) => a.pos - b.pos)
+      .flatMap((cl) => (cl.checkItems ?? []).sort((a, b) => a.pos - b.pos).map((ci) => ci.name ?? ''));
     const comments = (await trello(`/cards/${card.id}/actions`, { filter: 'commentCard', limit: '50' }))
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .map((a) => a.data?.text ?? '');
     let doc;
-    try { doc = extractJson(card.desc, comments); } catch (e) { r.detail = e.message; continue; }
+    try { doc = extractJson(card.desc, checkItems, comments); } catch (e) { r.detail = e.message; continue; }
     const errs = check(doc, doc?.slug);
     if (errs.length) { r.detail = errs.join('; '); continue; }
 
