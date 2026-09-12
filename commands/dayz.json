@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "slug": "dayz",
+  "game": {
+    "displayName": "DayZ Server",
+    "appId": 223350,
+    "aliases": [
+      "DayZ",
+      "DayZ Standalone",
+      "DayZ Dedicated Server",
+      "DZ",
+      "DayZSA"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "custom",
+    "defaultPort": 2306,
+    "portSetting": "RConPort",
+    "enableSetting": null,
+    "passwordSetting": "RConPassword"
+  },
+  "playerId": {
+    "label": "BattlEye player number",
+    "example": "3",
+    "pattern": "[0-9]{1,3}"
+  },
+  "commands": {
+    "listPlayers": "players",
+    "kick": "kick {playerId} {reason}",
+    "ban": "ban {playerId} {duration} {reason}",
+    "say": "say -1 {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^(?<playerId>[0-9]+)\\s+(?:[0-9]{1,3}\\.){3}[0-9]{1,3}:[0-9]+\\s+-?[0-9]+\\s+(?<accountId>[0-9a-f]{32})\\([^)]*\\)\\s+(?<name>.+?)(?:\\s+\\(Lobby\\))?\\s*$",
+    "skipLinePattern": "^(?:Players on server:|\\[#\\]|-{2,}|\\([0-9]+ players in total\\))"
+  },
+  "banList": {
+    "paths": [
+      "battleye/bans.txt",
+      "BattlEye/bans.txt",
+      "profiles/battleye/bans.txt"
+    ],
+    "lineIdPattern": "^([0-9a-f]{32})\\s"
+  },
+  "sources": [
+    {
+      "url": "https://www.battleye.com/support/documentation/",
+      "title": "BattlEye Documentation - RCon commands and BEServer config",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/DayZ:Server_Configuration",
+      "title": "DayZ:Server Configuration - Bohemia Interactive Community",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/BattlEye",
+      "title": "BattlEye - Bohemia Interactive Community",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://feedback.bistudio.com/T159179",
+      "title": "T159179 RCon default port issue - Bohemia Feedback Tracker",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/WoozyMasta/bercon",
+      "title": "bercon - BattlEye RCON command line client",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/dotFionn/arma3-rcon",
+      "title": "arma3-rcon - documents the players command output layout",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://www.gameserverkings.com/knowledge-base/dayz/how-to-add-admins-and-commands/",
+      "title": "DayZ Admin Commands: BattlEye RCon and Admin Tools",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://cftools.com/help/technical/battleye-rcon",
+      "title": "BattlEye RCon - CFTools Help Center",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "DayZ speaks BattlEye RCon (BERCon), not Source RCON: it is a UDP protocol with its own login/packet/CRC framing, configured in BEServer_x64.cfg (Windows) / beserver_x64.cfg (Linux) next to the BE server module, relocatable with -BEpath=. PORT: since DayZ 1.13 there is NO default RCon port - if RConPort is unset BattlEye binds a random port (Bohemia feedback T159179, closed as intended), and the pre-1.13 behaviour of using the game port or game port + 2 no longer works. 2306 is recorded as defaultPort because it is the convention hosts and tools ship with; CFTools instead recommends game port + 3 (2305). Always read RConPort from the config rather than trusting 2306. IDENTIFIER: BattlEye kick and ban take the PLAYER NUMBER - the [#] column of 'players' - not a GUID, so the roster must be refreshed immediately before acting; the number is session-scoped and is reused after a disconnect. 'ban <player #> <minutes> <reason>' bans that player's BE GUID (0 or omitted = permanent). To ban someone who is offline use 'addBan <GUID or IP> <minutes> <reason>' with the 32-hex BE GUID from the roster's accountId. UNBAN: BattlEye's removeBan takes a BAN INDEX from the 'bans' listing, not a player id or GUID, so it cannot be expressed as a {playerId} template and both unban and banList.liveUnban are omitted - unban by reading 'bans', matching the GUID, then sending 'removeBan <ban #>' and 'writeBans'. 'writeBans' flushes the in-memory list to bans.txt and drops expired entries; 'loadBans' reloads it. No server-info command exists in BE RCon ('version' only reports the BE server build), so info is omitted, and there is no MOTD command. RestrictRCon 1 in the BE config limits RCon to a reduced command set - set it to 0 for full kick/ban control. Disagreement: XGamingServer's DayZ doc calls the RCon port TCP; BattlEye RCon is UDP. Separately, serverDZ.cfg has disableBanlist and a DayZ-level ban.txt of Steam64 IDs, which is a different list from BattlEye's GUID-based bans.txt recorded here."
+}

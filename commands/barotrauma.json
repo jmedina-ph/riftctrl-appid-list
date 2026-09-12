@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "slug": "barotrauma",
+  "game": {
+    "displayName": "Barotrauma Dedicated Server",
+    "appId": 1026340,
+    "aliases": [
+      "Barotrauma"
+    ]
+  },
+  "transport": "stdin",
+  "stdin": {
+    "note": "Commands are typed into the dedicated server's own console window (DedicatedServer.exe, Steam app 1026340). Vanilla Barotrauma has no RCON and no HTTP admin API. DebugConsole.UpdateCommandLine only reads input when Console.IsInputRedirected and Console.IsOutputRedirected are both false, and it polls Console.KeyAvailable, so a plain pipe into stdin is silently ignored: the process must be attached to a pseudo-terminal (tmux/screen, or a panel pty). Output is padded with trailing spaces to the console width for the same reason."
+  },
+  "playerId": {
+    "label": "Username",
+    "example": "Captain Nemo",
+    "pattern": "[^;<>/\\\\\\[\\]\"?\\r\\n]+"
+  },
+  "commands": {
+    "listPlayers": "clientlist",
+    "kick": "kick {playerId}",
+    "ban": "ban {playerId}",
+    "unban": "unban {playerId}",
+    "say": "say {message}",
+    "motd": "servermsg {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^- \\d+: (?<playerId>(?<name>.+?))(?: playing .+?)?, [^,]*, [^,]*, ping \\d+ ms\\s*$",
+    "skipLinePattern": "^\\*{3,}\\s*$"
+  },
+  "banList": {
+    "paths": [
+      "Data/bannedplayers.xml"
+    ],
+    "lineIdPattern": "name=\"([^\"]*)\"",
+    "liveUnban": "unban {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://barotraumagame.com/wiki/Console_Commands",
+      "title": "Console Commands - Official Barotrauma Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://barotraumagame.com/wiki/Hosting_a_Dedicated_Server",
+      "title": "Hosting a Dedicated Server - Official Barotrauma Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/FakeFishGames/Barotrauma/blob/master/Barotrauma/BarotraumaShared/SharedSource/DebugConsole.cs",
+      "title": "DebugConsole.cs (shared) - kick/kickid/ban/banid definitions",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/FakeFishGames/Barotrauma/blob/master/Barotrauma/BarotraumaServer/ServerSource/DebugConsole.cs",
+      "title": "DebugConsole.cs (server) - clientlist/say/msg/servermsg/unban definitions and console input loop",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/FakeFishGames/Barotrauma/blob/master/Barotrauma/BarotraumaServer/ServerSource/Networking/BanList.cs",
+      "title": "BanList.cs - Data/bannedplayers.xml format",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://xgamingserver.com/docs/barotrauma/console-commands",
+      "title": "Barotrauma Console & Admin Commands: Full List",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "No RCON and no admin API: the server is driven from its own console, or by a connected client that holds console permissions. kick and ban are TWO-STEP on the console. \"kick <name>\" prints \"   >>Reason for kicking ...? (Enter c to cancel)\" and consumes the NEXT console line as the reason; \"ban <name>\" then asks for a duration on a THIRD line (blank = permanent, format \"[days] d [hours] h\"; \"c\" cancels either prompt). {reason} and {duration} therefore cannot be inlined and are absent from the command strings - a caller must follow up with those lines or the console is left sitting at a prompt. kickid/banid take the ephemeral per-connection session id shown by clientlist, and banaddress|banip takes an endpoint (also interactive), but unban takes only a name, so the player NAME is the identifier used end to end. Names are unique per server (homoglyph-compared) and may contain spaces and commas, but not ; < > / \\ [ ] \" ? (Client.IsValidName). clientlist prints \"***************\" delimiter lines plus one \"- <sessionId>: <name>[ playing <character>], <endpoint>, <accountId>, ping <n> ms\" line per client. \"servermsg [message]\" (the server lobby message, i.e. MOTD) is defined in the game's source but is not on the official wiki's command list; \"say\" prefixes the broadcast with \"HOST: \" while \"msg\" sends the same text with no sender. Bans persist to Data/bannedplayers.xml as <ban name=\"...\" reason=\"...\" accountid=\"...\" expirationtime=\"...\"/>; a legacy Data/bannedplayers.txt is converted and deleted on first load. There is no server status/info command, so \"info\" is omitted."
+}

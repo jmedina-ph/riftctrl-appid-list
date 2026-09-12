@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "slug": "colony-survival",
+  "game": {
+    "displayName": "Colony Survival Dedicated Server",
+    "appId": 748090,
+    "aliases": [
+      "Colony Survival",
+      "colserver"
+    ]
+  },
+  "transport": "stdin",
+  "stdin": {
+    "note": "Built-in commands are entered either in in-game chat by a player with the right permission group, or at the dedicated server's console. The Linux build (./colonyserver.x86_64 -batchmode -nographics +server.world \"<world>\") takes the command line directly; the Windows wrapper colonyserverdedicated.exe has its own shell (quit / list / start_server / stop_server / send) and requires each game command to be prefixed with \"send \", e.g. \"send /blacklist add 76561198156320300\". Commands keep their leading slash and are case sensitive. No RCON and no HTTP admin API; LinuxGSM's colserver reaches the console through tmux."
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198156320300",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "commands": {
+    "ban": "/blacklist add {playerId}",
+    "unban": "/blacklist remove {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://colonysurvival.fandom.com/wiki/Commands",
+      "title": "Commands - Colony Survival Wiki (Fandom)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://colonysurvival.fandom.com/wiki/Dedicated_Server",
+      "title": "Dedicated Server - Colony Survival Wiki (Fandom)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2172733931",
+      "title": "0.10 All Commands & Item IDs (Steam guide)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/app/366090/discussions/0/2333276539601320604/",
+      "title": "Blacklisting/kicking a player - Steam discussions",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/Scarabol/ColonyCommandsMod",
+      "title": "ColonyCommandsMod - adds /kick, /ban, /online to Colony Survival",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://linuxgsm.com/servers/colserver/",
+      "title": "Colony Survival Linux Game Server - LinuxGSM",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://legionhosting.net/kb/colony-survival/colony-survival-admin-and-mod-setup",
+      "title": "Colony Survival Admin and Mod Setup - Legion Hosting (contradicting source)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Vanilla Colony Survival has no kick, no player-list and no broadcast command. The wiki's full command page (Cheats / Colony Commands / Server Commands / Permissions / Debug Commands) contains no /kick, /ban, /unban, /say, /announce, /players, /online or /list, and the widely used ColonyCommandsMod exists precisely to add /kick, /ban and /online - which is strong evidence the base game lacks them. Blacklisting is the only vanilla moderation action. The wiki gives the full form as \"/blacklist [ clear | add {player} | remove {player} ]\": with no argument it prints the current blacklist, and \"/blacklist clear\" empties it. UNVERIFIED SIDE EFFECT: no source read states whether blacklisting DISCONNECTS a player who is currently connected. The community thread is titled \"Blacklisting/kicking a player\" and the asker wanted a griefer removed, but no reply confirms an active session is dropped - so do not treat blacklist as a kick without testing. DISAGREEMENT: hosting knowledge bases (Legion Hosting, listed in sources) publish \"/kick [PlayerName]\", \"/ban [PlayerName]\", \"/unban [PlayerName]\", \"/players\" and \"/say [Message]\" for Colony Survival. Nothing official or community-sourced supports those and they look copied from a generic template, so they are NOT recorded here. IDENTIFIER RISK: the wiki and the Steam command guide both write the argument as {player} / <player name>, and /setgroup is documented as taking either USER_NAME or STEAM_ID, while community practice for blacklisting is to paste the SteamID64 (the forum thread's advice is literally \"go /blacklist add >paste the numbers<\" after looking the id up); the permission file gamedata/savegames/<world>/permissionusers.json keys users as \"1.<steamid64>\" (1 = the Steam network-id type). SteamID64 is recorded because it is the only form that can work for a player who is not currently connected, but a connected player's name may also be accepted - this is the main reason confidence is low. No ban-file path is recorded because no source states where the blacklist is persisted. The Colony Survival Wiki is a community Fandom wiki, not publisher-hosted docs, so both wiki sources are kind \"wiki\". Steam app 748090 is the free Colony Survival Dedicated Server; the game itself is app 366090."
+}

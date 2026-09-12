@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "killing-floor-2",
+  "game": {
+    "displayName": "Killing Floor 2 Dedicated Server",
+    "appId": 232130,
+    "aliases": [
+      "Killing Floor 2",
+      "KF2",
+      "KillingFloor2"
+    ]
+  },
+  "transport": "rest",
+  "rest": {
+    "defaultPort": 8080,
+    "basePath": "/ServerAdmin",
+    "auth": {
+      "type": "basic",
+      "credentialSetting": "AdminPassword"
+    }
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198000000000",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "sources": [
+    {
+      "url": "http://www.wiki.killingfloor2.com/index.php?title=Dedicated_Server_(Killing_Floor_2)",
+      "title": "Dedicated Server (Killing Floor 2) - Tripwire Interactive / Killing Floor 2 Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/app/232090/discussions/2/2995417914185741296/",
+      "title": "Important Web Admin Note for Community Server Admins - Tripwire announcement",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/th3-z/kf-magicked-admin/blob/master/magicked_admin/web_admin/web_admin.py",
+      "title": "KF2 Magicked Admin - WebAdmin form payloads for kick/ban/unban",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/th3-z/kf-magicked-admin/blob/master/magicked_admin/web_admin/web_interface.py",
+      "title": "KF2 Magicked Admin - WebAdmin URL map and login flow",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/th3-z/kf-magicked-admin/blob/master/magicked_admin/web_admin/chat.py",
+      "title": "KF2 Magicked Admin - chat.py, admin broadcast payload",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/jweigelt/kf2-adminhelper",
+      "title": "kf2-adminhelper - 'Works using Killing Floor 2's web interface'",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://citadelservers.com/wiki/index.php?title=Accessing_and_Enabling_Killing_Floor_2_WebAdmin",
+      "title": "Accessing and Enabling Killing Floor 2 WebAdmin - Citadel Servers Wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/app/232090/discussions/0/144513152473396105/",
+      "title": "Administrator Console Commands - Killing Floor 2 General Discussions",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2348233939",
+      "title": "How to ban players since the Dec 2020 update (via editing INI file)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": "2026-09-12",
+  "notes": "Killing Floor 2 has NO RCON and no usable server-side text console. The only remote admin channel is the UE3 WebAdmin HTTP interface: enable it with bEnabled=true in the [IpDrv.WebServer] section of KFGame/Config/KFWeb.ini, ListenPort=8080 by default; the account is 'Admin' with AdminPassword from [Engine.AccessControl] in KFGame/Config/PCServer-KFGame.ini (LinuxServer-KFGame.ini on Linux). Tripwire's own wiki confirms the ini file, section, bEnabled, the 8080 default and the AdminPassword location. Multiple accounts come from setting AuthenticationClass=WebAdmin.MultiWebAdminAuth in KFWebAdmin.ini.\n\nNO commands key is recorded on purpose: WebAdmin is HTML forms, not a command channel, so there is no text a person types that this file could carry. What the interface actually does, verified in the Magicked Admin source: GET /ServerAdmin/current/players and GET /ServerAdmin/current/info return the roster as HTML that must be scraped; POST /ServerAdmin/current/chat+data with {ajax=1, message=<text>, teamsay=-1} broadcasts as admin; POST /ServerAdmin/current/players+data with {ajax=1, action=kick, playerkey=<per-session key>} kicked; POST /ServerAdmin/policy/bans with {action=add|delete, steamint64=<SteamID64>, uniqueid=} banned and unbanned. The /ServerAdmin base path is confirmed by that code, not by Tripwire's wiki, which documents only host:8080. Auth is recorded as 'basic' because the code falls back to HTTP Basic when login returns 401, but the normal path is a session cookie: GET /ServerAdmin/ for a CSRF token, then POST username plus password_hash=$sha1$<sha1(password+username)> when the login page advertises hashAlg = \"sha1\".\n\nCRITICAL, with a currency caveat: in the December 2020 update Tripwire disabled moderation through WebAdmin. Their announcement states that the Players tab had ban and kick removed from its Controls select, that Session Bans and Banned IDs accept no new IDs and IP Masks no new IPs ('only removed'), and that 'no commands related to kick or kickban can be used now' in the Management Console. IMPORTANT: Tripwire framed these explicitly as TEMPORARY measures taken against admins abusing kick/ban, and that announcement is from Dec 2020; whether it was ever reverted has not been verified on a live server. So treat kick and ban as probably unreachable through WebAdmin and have a runtime fall through to the host-level floor for those two operations, but do not state as settled fact that they are permanently gone. Listing players and broadcasting chat are unaffected either way.\n\nDISAGREEMENT: hosting-company knowledgebases (e.g. Legion Hosting) publish 'admin kick [playername]', 'admin ban [playername]', 'admin banid [steamid]' and 'say [message]' as KF2 admin console commands. These are inherited from Killing Floor 1 and are contradicted both by Tripwire's WebAdmin announcement and by long-running community threads reporting that only adminlogin, adminlogout and adminsay do anything in the KF2 client console. They are not recorded here.\n\nBans that are still possible are made by hand in the [Engine.AccessControl] section of PCServer-KFGame.ini as BannedIDs=(Uid=(A=<low dword>,B=17825793)) and require a server restart. No banList block is recorded because the id in that line is a split 64-bit value, not the SteamID64 in playerId, and a lineIdPattern pointing at it would hand the runtime an identifier it cannot match against the roster. playerId is recorded as SteamID64 because that is what the WebAdmin bans page and the roster expose, but note that kicking used an opaque per-session playerkey rather than the Steam ID.\n\nConfidence is 'low' deliberately: the transport facts (WebAdmin, port 8080, /ServerAdmin, ini keys) are agreed on by the official wiki, Tripwire's own announcement and two independent codebases, but classifying an HTML form interface as 'rest' is a judgement call, and the post-2020 state of the Management Console was not observed on a live server."
+}

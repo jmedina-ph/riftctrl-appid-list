@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "slug": "avorion",
+  "game": {
+    "displayName": "Avorion Dedicated Server",
+    "appId": 565060,
+    "aliases": [
+      "Avorion",
+      "AvorionServer"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": "rconPort",
+    "enableSetting": null,
+    "passwordSetting": "rconPassword"
+  },
+  "playerId": {
+    "label": "Username",
+    "example": "Captain Nemo",
+    "pattern": "[A-Za-z0-9_\\-\\[\\]. ]{1,32}"
+  },
+  "commands": {
+    "info": "/status",
+    "kick": "/kick {playerId}",
+    "ban": "/ban {playerId}",
+    "unban": "/unban {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://avorion.fandom.com/wiki/Server",
+      "title": "Server - Official Avorion Wiki (RCON default port 27015; rconIp/rconPort/rconPassword)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/CubeCoders/AMPTemplates/blob/main/avorion.kvp",
+      "title": "AMP template avorion.kvp - AdminMethod=SourceRCON, --rcon-port/--rcon-password, ExitString=/stop",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://zap-hosting.com/guides/docs/avorion-rcon/",
+      "title": "Avorion: RCON (rcon-cli, /status, /kick, /ban, /save)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=852704603",
+      "title": "Steam Guide: Avorion Admin Commands [and Cheats]",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://my.logicservers.com/knowledgebase/344/Commands-for-your-Avorion-server.html",
+      "title": "Commands for your Avorion server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://citadelservers.com/wiki/index.php?title=Avorion_Admin_Commands",
+      "title": "Avorion Admin Commands - Citadel Servers Wiki",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.bisecthosting.com/hc/en-us/articles/40804812093083-Avorion-Console-Commands",
+      "title": "Avorion Console Commands - BisectHosting",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "RCON is Source-flavour and is switched on simply by setting a password: AvorionServer takes --rcon-ip / --rcon-port / --rcon-password on the command line and rconIp / rconPort / rconPassword in server.ini, so there is no separate enable setting. The official wiki gives 27015 as the default RCON port and CubeCoders' AMP template drives Avorion with AdminMethod=SourceRCON on 27015/TCP; that template also sends /stop as its shutdown string, which is the evidence that commands keep their leading slash over RCON rather than dropping it. The command set is the same one an in-game admin types. NO BROADCAST: no say/chat/broadcast command appears in any copy of the in-game /help. Legion Hosting publishes /say and /players for Avorion; nothing else corroborates either and its /admin form also contradicts the documented /admin -a / -r, so both were rejected rather than recorded. NO ROSTER: listPlayers is deliberately absent. The nearest command is /player, which LogicServers and Citadel (quoting the in-game help) describe as 'prints the number of players' while BisectHosting paraphrases it as 'shows the players on the server'; a count cannot be parsed into rows, so guessing a playerParse here would have shipped an empty roster. Avorion moderates by player NAME, not Steam ID - /kick, /ban and /unban all take the name per the in-game help. Reported disagreement: Legion Hosting says /unban takes a Steam ID (the ban itself is said to store the player's Steam ID in the server blacklist); the help text says player name. Names containing spaces are risky because the parser is token-based (compare /w <name> <message>) and no source documents a quoting form. Related commands not modelled: /banip <ip>, /unbanip <ip>, /blacklist, /whitelist, /admin -a <name>, /admin -r <name>, /save, /stop, /seed, /version. A writable stdin console exists on the server process as well (AMP sets HasWriteableConsole), taking the same slash-prefixed commands; RCON is preferred."
+}

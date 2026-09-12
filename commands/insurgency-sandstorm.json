@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "slug": "insurgency-sandstorm",
+  "game": {
+    "displayName": "Insurgency: Sandstorm Dedicated Server",
+    "appId": 581330,
+    "aliases": [
+      "Insurgency: Sandstorm",
+      "Insurgency Sandstorm",
+      "Sandstorm",
+      "INS: Sandstorm"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": "ListenPort",
+    "enableSetting": "bEnabled",
+    "passwordSetting": "Password"
+  },
+  "playerId": {
+    "label": "NetID (SteamID64, or 32-hex EOS/WinGDK id)",
+    "example": "76561198000000000",
+    "pattern": "(?:[0-9]{17}|[0-9a-fA-F]{32})"
+  },
+  "commands": {
+    "listPlayers": "listplayers",
+    "kick": "kick \"{playerId}\" \"{reason}\"",
+    "ban": "ban \"{playerId}\" {duration} \"{reason}\"",
+    "unban": "unban \"{playerId}\"",
+    "say": "say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*\\|?\\s*[0-9]+\\t(?<name>[^\\t]*)\\t(?:[A-Za-z]+:)?(?<playerId>[0-9]{17}|[0-9a-fA-F]{32})\\t",
+    "skipLinePattern": "^\\s*(?:[-=]{3,}|ID \\| Name)"
+  },
+  "banList": {
+    "paths": [
+      "Insurgency/Config/Server/Bans.json",
+      "Insurgency/config/server/ban.json"
+    ],
+    "lineIdPattern": "\"playerId\"\\s*:\\s*\"([0-9A-Fa-f]+)\"",
+    "liveUnban": "unban \"{playerId}\""
+  },
+  "sources": [
+    {
+      "url": "https://usermanual.wiki/Document/Insurgency20Sandstorm20Server20Admin20Guide.1676496114/html",
+      "title": "Insurgency: Sandstorm Server Admin Guide (New World Interactive) - mirrored PDF",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://citadelservers.com/wiki/index.php?title=RCON_for_Insurgency_Sandstorm",
+      "title": "RCON for Insurgency Sandstorm - Citadel Servers Wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://pingperfect.com/knowledgebase/693/Insurgency-Sandstorm--RCON-Commands.html",
+      "title": "Insurgency Sandstorm | RCON Commands - Pingperfect",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://nodecraft.com/support/games/insurgency-sandstorm/sample-game-ini-file-for-your-insurgency-sandstorm-server",
+      "title": "Sample Game.ini file for Your Insurgency: Sandstorm Server - Nodecraft",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/schroeder-lvb/sissm/blob/master/src/api.c",
+      "title": "SISSM (Simple Insurgency Sandstorm Server Manager) - api.c, Rcon command strings",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/schroeder-lvb/sissm/blob/master/src/roster.c",
+      "title": "SISSM - roster.c, listplayers response parser",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/coreequip/insurgency-sandstorm-receptionist/blob/master/internal/rcon/listplayers.go",
+      "title": "Insurgency Sandstorm Receptionist - listplayers.go, documented table layout",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/Joe-Klauza/sandstorm-rcon-client",
+      "title": "sandstorm-rcon-client - Rcon command name list and default 27015",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/app/581320/discussions/1/1742229167204768529/",
+      "title": "Ban.json How to Add bans - Insurgency: Sandstorm Community Server Discussion",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": "2026-09-12",
+  "notes": "Rcon is the Valve Source RCON wire protocol over TCP: the Citadel Servers wiki states the server speaks the 'Source Engine Rcon Protocol', and the Receptionist client is documented as speaking the Source engine RCON protocol over TCP. Settings live in the [Rcon] section of Game.ini (Insurgency/Saved/Config/<Platform>Server/Game.ini): bEnabled, Password, ListenPort=27015 - the default port is confirmed both by NWI's guide ([Rcon] bEnabled=True / Password=password / ListenPort=27015) and by sandstorm-rcon-client's built-in default of 127.0.0.1:27015. Related keys not modelled here: bUseBroadcastAddress, ListenAddressOverride, bAllowConsoleCommands (unknown rcon commands fall through to the UE console), MaxPasswordAttempts, IncorrectPasswordBanTime.\n\nOfficial NWI syntax, read verbatim from the guide's command table: kick <id/netid/name> [reason]; ban <id/netid/name> [duration in minutes] [reason]; permban <id/netid/name> [reason]; unban <netid>; say <message>; listplayers; listbans. The quoting of id and reason is NOT from NWI - it follows SISSM, which issues kick \"%s\" \"%s\" and banid \"%s\" -1 \"%s\" in production. banid is the offline-capable equivalent of ban and is what SISSM uses; ban was recorded because it is the command in NWI's own table and appears in sandstorm-rcon-client's tab-completion list (help, listplayers, kick, permban, travel, ban, banid, listbans, unban, say, restartround, maps, scenarios, travelscenario, gamemodeproperty, listgamemodeproperties). Duration is in MINUTES; -1 means permanent. NWI's guide and that completion list both spell the permanent variant 'permban'; Pingperfect spells it 'permaban', so Pingperfect is wrong. No info/status and no motd command exists in the Rcon command set, so both keys are omitted.\n\nlistplayers returns a tab-separated table with five fields per record (slot id, name, NetID, IP, score), preceded by a dashed rule, an 'ID | Name | NetID | IP | Score' heading and a line of '=' characters; records are printed with a leading '|'. Since Sandstorm 1.11 the NetID field carries a platform prefix - SteamNWI:, EOS: or WinGDK: - which must be stripped before use in kick/ban; bots appear as None:INVALID and are excluded by the id pattern. Two independent parsers agree on this layout: SISSM's roster.c splits on tab into (0) slot, (1) name, (2) NetID, (3) IP, (4) score, anchors on the '====' rule and strips the SteamNWI:/EOS:/WinGDK: prefixes, and Receptionist's listplayers.go documents the same columns. Caveat from the Receptionist source: a long reply is truncated at the RCON packet boundary (it validates entries individually and drops a broken tail), and the whole table sometimes arrives as a single line, in which case a per-line regex will see only the first record.\n\nBan file - WEAKEST PART OF THIS RECORD. NWI's guide documents Admins.txt at Insurgency/Config/Server/Admins.txt but does not document the bans file at all, and no official source found gives its path. The spelling is therefore unsettled: the Steam community thread gives Insurgency/config/server/ban.json, while Insurgency/Config/Server/Bans.json is the spelling in wider circulation. Both are listed because the path is case-sensitive on Linux dedicated servers and no primary source settles it; a runtime should probe rather than assume. Entry field names are confirmed by that thread: {\"playerId\":\"76561198...\",\"banTime\":1545915392,\"duration\":-1,\"banReason\":\"...\",\"adminId\":\"...\"}, duration in minutes with -1 permanent. Edits to the file need a server restart, whereas unban takes effect live."
+}

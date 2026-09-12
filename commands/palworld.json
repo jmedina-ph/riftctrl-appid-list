@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "slug": "palworld",
+  "game": {
+    "displayName": "Palworld Dedicated Server",
+    "appId": 2394010,
+    "aliases": [
+      "Palworld",
+      "PalServer",
+      "Palworld Server"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 25575,
+    "portSetting": "RCONPort",
+    "enableSetting": "RCONEnabled",
+    "passwordSetting": "AdminPassword"
+  },
+  "playerId": {
+    "label": "Platform User ID",
+    "example": "steam_76561198000000000",
+    "pattern": "(?:[a-z0-9]+_)?[0-9A-Za-z]{8,}"
+  },
+  "commands": {
+    "info": "Info",
+    "listPlayers": "ShowPlayers",
+    "kick": "KickPlayer {playerId}",
+    "ban": "BanPlayer {playerId}",
+    "unban": "UnBanPlayer {playerId}",
+    "say": "Broadcast {message}"
+  },
+  "playerParse": {
+    "mode": "csv",
+    "delimiter": ",",
+    "hasHeader": true,
+    "playerIdFromEnd": 1,
+    "accountIdFromEnd": 2
+  },
+  "sources": [
+    {
+      "url": "https://docs.palworldgame.com/settings-and-operation/commands",
+      "title": "Palworld Server Guide - Commands",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://docs.palworldgame.com/settings-and-operation/configuration",
+      "title": "Palworld Server Guide - Configuration (RCONEnabled/RCONPort/AdminPassword)",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://docs.palworldgame.com/api/rest-api/kick",
+      "title": "Palworld REST API - Kick player",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/thijsvanloef/palworld-server-docker/blob/main/scripts/player_logging.sh",
+      "title": "palworld-server-docker - player_logging.sh (ShowPlayers CSV shape)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/thijsvanloef/palworld-server-docker/blob/main/scripts/helper_functions.sh",
+      "title": "palworld-server-docker - helper_functions.sh (broadcast/ShowPlayers over RCON)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/juunini/palworld-rcon",
+      "title": "juunini/palworld-rcon - command table",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://www.gameserverkings.com/knowledge-base/palworld/admin-commands/",
+      "title": "Palworld Admin Commands & Moderation Guide",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.bisecthosting.com/hc/en-us/articles/40947021276187-How-to-Kick-or-Ban-Players-on-a-Palworld-Server",
+      "title": "How to Kick or Ban Players on a Palworld Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Official docs write every command with a leading slash (/ShowPlayers) because that is the in-game admin-chat form; over RCON the slash is dropped and the bare word is sent - palworld-server-docker sends RCON \"ShowPlayers\" and \"broadcast <msg>\" through rcon-cli, and GameServerKings states the console form is 'the same commands typed without the leading slash'. Casing here follows the official docs; the server is case-insensitive in practice. Broadcast cannot carry spaces over RCON: palworld-server-docker replaces every space with an underscore before sending, and non-ASCII messages fail outright - a caller that needs real spaces should use the REST API instead. ShowPlayers returns CSV with a header row and three columns, name,playeruid,<platform>_<id>; palworld-server-docker's player_logging.sh comments the third column as (steam|ps5|gdk)_<id> and skips the header with tail -n +2, and a player still loading or in character creation shows a playeruid of 8 or 32 zeroes. SOURCES DISAGREE on the moderation identifier: the official command reference still says <SteamID>; GameServerKings says either the Steam ID or the Player UID works for Steam players and that Xbox/Game Pass/PS5/Mac players must be addressed by Player UID; BisectHosting documents /KickPlayer steam_<SteamID>; and the REST API's kick takes a 'userid' string, the same field the /players response returns. The pattern therefore accepts both the bare id and a platform-prefixed form, and it does NOT enumerate platform prefixes - only (steam|ps5|gdk) are attested anywhere I read, so the prefix group is written generically rather than as a list. The value taken straight out of the ShowPlayers third column is the recommended one to pass, but for non-Steam players GameServerKings' advice (use the Player UID, column two) is the documented fallback if a kick appears to hit nobody. Palworld also exposes a REST admin API (RESTAPIEnabled/RESTAPIPort, default 8212, HTTP Basic auth with the admin password, base path /v1/api, endpoints info/players/announce/kick/ban/unban); it is recorded here as a note rather than as the transport because RCON is the older and more widely deployed channel, but note that palworld-server-docker now logs 'RCON IS DEPRECATED AND WILL BE REMOVED IN A FUTURE RELEASE. PLEASE USE THE REST API INSTEAD.' and prefers REST, so a future revision may flip this file to rest. Setting names RCONEnabled/RCONPort/AdminPassword come from the official configuration reference, which prints no defaults; the 25575 default is from palworld-server-docker (RCON_PORT 25575). juunini/palworld-rcon implements Info, ShowPlayers, KickPlayer, BanPlayer and Broadcast but has no UnBanPlayer method - UnBanPlayer rests on the official reference plus GameServerKings. No motd command exists."
+}

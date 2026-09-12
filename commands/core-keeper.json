@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "slug": "core-keeper",
+  "game": {
+    "displayName": "Core Keeper Dedicated Server",
+    "appId": 1963720,
+    "aliases": [
+      "Core Keeper",
+      "CoreKeeperServer",
+      "CK"
+    ]
+  },
+  "transport": "none",
+  "banList": {
+    "paths": [
+      "DedicatedServer/PlayerBans.json",
+      "~/.config/unity3d/Pugstorm/Core Keeper/DedicatedServer/PlayerBans.json"
+    ],
+    "lineIdPattern": "\"steamId\"\\s*:\\s*([0-9]{17})"
+  },
+  "sources": [
+    {
+      "url": "https://nodecraft.com/support/games/core-keeper/how-to-ban-unban-players-from-your-server",
+      "title": "How To Ban and Unban Players from your Core Keeper Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://nodecraft.com/support/games/core-keeper/how-to-add-admins",
+      "title": "How to Add Admins to your Core Keeper Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.akliz.net/docs/adding-and-removing-admins-from-your-core-keeper-server",
+      "title": "Adding and Removing Admins from your Core Keeper Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/pelican-eggs/games-steamcmd/blob/main/core_keeper/egg-pterodactyl-core-keeper.json",
+      "title": "Pelican/Pterodactyl Core Keeper egg",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://supercraft.host/wiki/core-keeper/admin_commands/",
+      "title": "Core Keeper Admin & Chat Commands reference",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/app/1621690/discussions/0/3275817873363439916/",
+      "title": "Setting up a Dedicated Server in Linux (Core Keeper discussions)",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamdb.info/app/1963720/",
+      "title": "Core Keeper Dedicated Server (App 1963720) on SteamDB",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "No command channel exists. Pugstorm ships no RCON, no admin HTTP API and no interactive console for the Core Keeper dedicated server: it is a Unity headless build launched with -batchmode -logfile, so its own stdout goes to CoreKeeperServerLog.txt and stdin is not a command pipe. The Pelican/Pterodactyl egg confirms this shape - it starts the binary with -batchmode -logfile CoreKeeperServerLog.txt, tails that log for output, and its stop action is ^C (SIGTERM), not a console command. Moderation is done either from a client that is an admin (Esc > player list / Manage Players, click the red cancel symbol to kick or ban, and the Banned Players section to unban) or by stopping the server and editing JSON: Admins.json holds {index, privileges, name, steamId} entries (privileges 2 = first/full admin, 1 = added in-game) and PlayerBans.json holds a banList of {index, name, steamId, crossPlatformId, stringId}. Nodecraft states explicitly that PlayerBans.json keys on SteamID64, not character name; crossPlatformId/stringId are used instead for non-Steam (crossplay) accounts, so the lineIdPattern here only pulls Steam bans. Both files live under the server's DataPath, which defaults to a DedicatedServer subfolder of the normal Core Keeper save location (~/.config/unity3d/Pugstorm/Core Keeper/DedicatedServer on Linux, the equivalent Unity LocalLow folder on Windows) and can be relocated with the -datapath launch argument; most hosts surface it as a DedicatedServer folder next to the install. Edits require a server restart to take effect. Sources disagree only in that several hosting blogs publish generic /kick, /ban or /op chat commands for Core Keeper; those are from mods, not the base server, and one hosting wiki (supercraft.host) explicitly warns against presenting them as built-in and states there is no published RCON port or admin-command set. No official Pugstorm page documents any console command, so this file records transport \"none\" rather than inventing one."
+}

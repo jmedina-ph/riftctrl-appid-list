@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "slug": "american-truck-simulator-dedicated-server",
+  "game": {
+    "displayName": "American Truck Simulator Dedicated Server",
+    "appId": 2239530,
+    "aliases": [
+      "American Truck Simulator",
+      "ATS",
+      "ATS Convoy Dedicated Server",
+      "atsserver"
+    ]
+  },
+  "transport": "none",
+  "sources": [
+    {
+      "url": "https://modding.scssoft.com/wiki/Documentation/Tools/Dedicated_Server",
+      "title": "SCS Software modding wiki - Dedicated Server",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://blog.scssoft.com/2022/12/convoy-dedicated-servers-support.html",
+      "title": "SCS Software blog - Convoy: Dedicated Servers Support",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2900693664",
+      "title": "American Truck Simulator - Dedicated Server Setup (Steam guide)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://linuxgsm.com/servers/atsserver/",
+      "title": "LinuxGSM - American Truck Simulator server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://truck-simulator.fandom.com/wiki/Dedicated_Servers",
+      "title": "Truck Simulator Wiki - Dedicated Servers (contradicting)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "SCS Software's own dedicated-server documentation describes a headless process with NO interactive console: it is configured entirely through server_config.sii (session name, password, connection ports, logon token, moderator/known-player list of Steam IDs) plus server_packages.sii/.dat, and is stopped with Ctrl+C. There is no RCON, no HTTP/admin API and no command reader on stdin; LinuxGSM's atsserver entry wraps the process in tmux and offers only its own start/stop/console wrapper (its 'enter commands, if supported' wording is LinuxGSM boilerplate, not an ATS command channel). The only runtime commands documented are chat commands typed IN THE GAME CLIENT by a player with moderator status: /set_time <HH:MM>, /set_rain_factor <0-1> and /help. Those are not a server-operator pipe, and the documented set contains no kick, ban, player-list or broadcast command, so no commands are recorded here. SCS wrote in Dec 2022 that they 'plan to bring you more extensive tools and moderation features in future updates'; as of 2026-09 nothing of the sort is documented. DISAGREEMENT: truck-simulator.fandom.com's Dedicated Servers page claims a server console with '/kick [player_name]', '/ban [player_name]' and '/reload' plus banlist.txt / whitelist.txt files. Nothing in SCS's modding wiki, SCS's blog post, the Steam setup guide that quotes the shipped readme, or LinuxGSM's atsserver page corroborates any of it; the fandom claim is treated as wrong and was not recorded. Moderation therefore has to happen at the host level. The same binary family and the same conclusion apply to the Euro Truck Simulator 2 Dedicated Server, which SCS documents on the same wiki page."
+}

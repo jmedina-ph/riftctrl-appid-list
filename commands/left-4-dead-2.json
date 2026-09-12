@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "slug": "left-4-dead-2",
+  "game": {
+    "displayName": "Left 4 Dead 2 Dedicated Server",
+    "appId": 222860,
+    "aliases": [
+      "Left 4 Dead 2",
+      "L4D2",
+      "Left4Dead2",
+      "left4dead2"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": "-port",
+    "enableSetting": null,
+    "passwordSetting": "rcon_password"
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "STEAM_1:0:117097",
+    "pattern": "STEAM_[0-9]:[01]:[0-9]+"
+  },
+  "commands": {
+    "info": "status",
+    "listPlayers": "status",
+    "kick": "kickid {playerId} {reason}",
+    "ban": "banid {duration} {playerId} kick",
+    "unban": "removeid {playerId}",
+    "say": "say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^#\\s*\\d+(?:\\s+\\d+)?\\s+\"(?<name>[^\"]*)\"\\s+(?<playerId>STEAM_[0-9]:[01]:[0-9]+)",
+    "skipLinePattern": "^\\s*(hostname|version|udp/ip|os|map|players|edicts|tags|account|#\\s*userid)"
+  },
+  "banList": {
+    "paths": [
+      "left4dead2/cfg/banned_user.cfg",
+      "left4dead2/banned_user.cfg"
+    ],
+    "lineIdPattern": "banid\\s+[0-9.]+\\s+(STEAM_[0-9]:[01]:[0-9]+)",
+    "liveUnban": "removeid {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://developer.valvesoftware.com/wiki/Console_Command_List",
+      "title": "Console Command List - Valve Developer Community",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3541480094",
+      "title": "Left 4 Dead 2 Complete Console Commands (in-game command dump)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://pastebin.com/f107a518d",
+      "title": "L4D2 Cvar List (cvarlist dump from the game)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=276173458",
+      "title": "Left 4 Dead 2 Dedicated Server Guide (Detailed)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/koraktor/steam-condenser/issues/94",
+      "title": "steam-condenser issue #94 - L4D2 rcon status output with STEAM_1:0: ids",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://forums.srcds.com/viewtopic/12641",
+      "title": "srcds.com forums - kickid <userid | uniqueid> {message}",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://zap-hosting.com/guides/docs/l4d2-rcon/",
+      "title": "ZAP-Hosting Docs - Left 4 Dead 2: RCON",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Standard Valve Source RCON over TCP on the SAME port as the game's UDP port (default 27015, set with the -port launch argument; cvar hostport). RCON is enabled purely by setting rcon_password in server.cfg - there is no separate enable switch, so enableSetting is null. banid takes the duration FIRST, in MINUTES, with 0 meaning permanent; the trailing literal 'kick' makes it also drop the player immediately. banid and removeid only change the in-memory ban list - run writeid afterwards to persist to banned_user.cfg, or the ban/unban is lost on restart. kickid's message is free text and must NOT be quoted (quotes are sent literally); it accepts either the numeric userid or the STEAM_ uniqueid, so kick and ban are driven by the same identifier. status output lines look like: #250 1 \"MorgueFish\" STEAM_1:0:117097 11:02 92 0 active 25000 89.15.76.143:27005 - older builds print a single leading number instead of two, so the line pattern accepts either. Bot rows carry BOT instead of a Steam ID and are deliberately excluded, since bots cannot be banned by Steam ID. No motd command exists: the MOTD is the motd.txt file in the game directory, so commands.motd is omitted. Disagreement: hosting-provider docs (ZAP-Hosting, BisectHosting) document only 'kick <playername>', which moderates by NAME and would not match the Steam ID that banid needs; the game's own command dump lists both kick (by name) and kickid (by userid or uniqueid), and kickid is used here. Game directory is left4dead2 (srcds -game left4dead2)."
+}

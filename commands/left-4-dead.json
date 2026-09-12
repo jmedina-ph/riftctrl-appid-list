@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "slug": "left-4-dead",
+  "game": {
+    "displayName": "Left 4 Dead Dedicated Server",
+    "appId": 222840,
+    "aliases": [
+      "Left 4 Dead",
+      "L4D",
+      "L4D1",
+      "Left4Dead",
+      "left4dead"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": "-port",
+    "enableSetting": null,
+    "passwordSetting": "rcon_password"
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "STEAM_1:0:117097",
+    "pattern": "STEAM_[0-9]:[01]:[0-9]+"
+  },
+  "commands": {
+    "info": "status",
+    "listPlayers": "status",
+    "kick": "kickid {playerId} {reason}",
+    "ban": "banid {duration} {playerId} kick",
+    "unban": "removeid {playerId}",
+    "say": "say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^#\\s*\\d+(?:\\s+\\d+)?\\s+\"(?<name>[^\"]*)\"\\s+(?<playerId>STEAM_[0-9]:[01]:[0-9]+)",
+    "skipLinePattern": "^\\s*(hostname|version|udp/ip|os|map|players|edicts|tags|account|#\\s*userid)"
+  },
+  "banList": {
+    "paths": [
+      "left4dead/cfg/banned_user.cfg",
+      "left4dead/banned_user.cfg"
+    ],
+    "lineIdPattern": "banid\\s+[0-9.]+\\s+(STEAM_[0-9]:[01]:[0-9]+)",
+    "liveUnban": "removeid {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=1931990618",
+      "title": "L4D Vanilla Server ADMIN Commands (L4D1) - banid (mins) (STEAMID) kick, removeid, status, users, listid, writeid",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=1872593045",
+      "title": "Left 4 Dead Dedicated Server (SteamCMD) [Windows] - app_update 222840, srcds -game left4dead -port 27015, rcon_password",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://developer.valvesoftware.com/wiki/Console_Command_List",
+      "title": "Console Command List - Valve Developer Community (banid, removeid, listid, kick, say)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://forums.srcds.com/viewtopic/12641",
+      "title": "srcds.com forums - kickid <userid | uniqueid> {message}, reason unquoted (engine-level, not L4D1-specific)",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://legionhosting.net/kb/left-4-dead/left-4-dead-admin-and-commands?language=english",
+      "title": "Legion Hosting KB - Left 4 Dead Admin and Commands (kickid [userid], banid [minutes] [steamid], removeid [steamid], status)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/koraktor/steam-condenser/issues/94",
+      "title": "steam-condenser issue #94 - real L4D2 rcon status capture showing STEAM_1:0: ids (same Source status format as L4D1)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Standard Valve Source RCON over TCP on the SAME port as the game's UDP port (default 27015, set with the -port launch argument; cvar hostport). RCON is enabled purely by setting rcon_password in server.cfg - there is no separate enable switch, so enableSetting is null. banid takes the duration FIRST, in MINUTES, with 0 meaning permanent; the trailing literal 'kick' makes it also drop the player immediately - the L4D1 admin guide gives exactly 'banid (mins) (STEAMID) kick', and the Legion Hosting KB independently gives 'banid [minutes] [steamid]' with 0 = permanent. banid and removeid only change the in-memory ban list - run writeid afterwards to persist to banned_user.cfg, or the ban/unban is lost on restart. kickid's message is free text and must NOT be quoted (quotes are sent literally); the srcds.com thread confirms both 'kickid 11 Please do not swear' and 'kickid STEAM_0:1:223 Please do not swear' work, so kick and ban can be driven by the same identifier. status output lines look like: #250 1 \"MorgueFish\" STEAM_1:0:117097 11:02 92 0 active 25000 89.15.76.143:27005 - that capture (steam-condenser issue #94) is from an L4D2 server and L4D1 shares the engine's status format; older/other builds print a single leading number instead of two, so the line pattern accepts either. Bot rows carry BOT instead of a Steam ID and are deliberately excluded, since bots cannot be banned by Steam ID. No motd command exists: the MOTD is the motd.txt file in the game directory, so commands.motd is omitted. Disagreement: hosting-provider docs document only 'kick <playername>', which moderates by NAME and would not match the Steam ID that banid needs; the L4D2 command dump (identical engine) lists both kick (by name) and kickid (by userid or uniqueid), and kickid is used here. Note the Valve wiki describes kick as 'Kick a player by slot, userid or name', which is broader than the dumps' 'by name'. Game directory is left4dead (srcds -game left4dead, app_update 222840 validate). L4D1 caveat, CORRECTED ON REVIEW: banid, removeid, status, users, listid and writeid are documented in L4D1 sources directly, but the L4D1 hosting KB documents kickid ONLY in its by-userid form ('kickid [userid]') - it does not state the Steam ID form. No L4D1-specific source documents kickid accepting a STEAM_ uniqueid; that form rests on the engine-level srcds.com thread plus the L4D2 command dump, so treat kickid-by-Steam-ID as engine-inherited rather than L4D1-documented."
+}

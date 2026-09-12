@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "slug": "quake-live",
+  "game": {
+    "displayName": "Quake Live Dedicated Server",
+    "appId": 349090,
+    "aliases": [
+      "Quake Live",
+      "QL",
+      "QLDS",
+      "qzeroded"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "custom",
+    "defaultPort": 28960,
+    "portSetting": "zmq_rcon_port",
+    "enableSetting": "zmq_rcon_enable",
+    "passwordSetting": "zmq_rcon_password"
+  },
+  "playerId": {
+    "label": "Client ID",
+    "example": "3",
+    "pattern": "[0-9]{1,2}"
+  },
+  "commands": {
+    "info": "serverinfo",
+    "listPlayers": "status",
+    "kick": "clientkick {playerId}",
+    "ban": "ban {playerId}",
+    "say": "say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*(?<playerId>\\d{1,2})\\s+-?\\d+\\s+\\d+\\s+(?<name>\\S+)\\s+\\d+\\s+\\S+\\s+\\d+\\s+\\d+(?:\\s+(?<accountId>\\d{17}))?",
+    "skipLinePattern": "^(map:|num\\s+score|-{3})"
+  },
+  "banList": {
+    "paths": [
+      "baseq3/access.txt",
+      "access.txt"
+    ],
+    "lineIdPattern": "^(7656[0-9]{13})\\|ban"
+  },
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/GameServerManagers/Game-Server-Configs/main/ql/server_readme.txt",
+      "title": "QUAKE LIVE DEDICATED SERVER - server_readme.txt (id Software, shipped with the server, mirrored by LinuxGSM)",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/GameServerManagers/Game-Server-Configs/main/ql/server.cfg",
+      "title": "Quake Live default server.cfg (id Software, Remote Admin section)",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/CubeCoders/AMPTemplates/main/quake-live.kvp",
+      "title": "CubeCoders AMP template for Quake Live (zmq_rcon_* launch args, ExitString stop)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/CubeCoders/AMPTemplates/main/quake-liveports.json",
+      "title": "CubeCoders AMP Quake Live port definitions (RCON 28960/TCP)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/CubeCoders/AMPTemplates/main/quake-liveupdates.json",
+      "title": "CubeCoders AMP Quake Live update source (SteamCMD app 349090)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/GameServerManagers/LinuxGSM/master/lgsm/config-default/config-lgsm/qlserver/_default.cfg",
+      "title": "LinuxGSM qlserver defaults (appid 349090, servercfgdir serverfiles/baseq3)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/MinoMino/minqlx/master/python/minqlx/_game.py",
+      "title": "minqlx Game class - server console commands issued by the mod (ban/unban/tempban/mute/put/opsay)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/syncore/sst/master/SST/Core/QlCommands.cs",
+      "title": "SynServerTool QlCommands.cs - kickban/unban/put/say/serverinfo/players command text",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/tjone270/Quake-Live/master/documentation/Commands.md",
+      "title": "Quake Live Technical Documentation - command list with client/server columns",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/syncore/sst/master/SST/sst-commands.txt",
+      "title": "SynServerTool command reference (!kickban / !unban wrap QL's own ban system)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "RCON is ZeroMQ, not Source RCON: the official server_readme.txt says rcon binds a TCP (not UDP) port and the socket is a ZeroMQ socket using CZMQ for authentication, with a sample client zmq_rcon.py (Python 2.x, needs pip install czmq) shipped alongside the server - hence flavour \"custom\". Cvars are zmq_rcon_enable / zmq_rcon_ip / zmq_rcon_port / zmq_rcon_password; the bundled server.cfg documents 28960 as the port default and AMP's port file independently ships 28960/TCP, while the readme's example launcher computes rcon as gameport+1000 (base 28960 alongside game base 27960) and its zmq_rcon.py example line uses 27961 - treat 28960 as the default, not a guarantee. Sources disagree on the enable default: the readme says rcon is disabled by default, the bundled server.cfg comment says \"Default: set zmq_rcon_enable 1\". server.cfg also warns that rcon cannot be enabled or disabled after launch and the IP and port cannot change; only the password can. The process console accepts the same commands on stdin (AMP drives it that way, ExitString \"stop\"), so stdin is a viable fallback when ZeroMQ is not available. appId 349090 is the dedicated-server app - LinuxGSM's qlserver config and AMP's update source agree - while the game itself is 282440. playerId is the client number, because that is what QL's moderation commands take: SST's source converts a name to \"the playerID required for the actual QL command\" before sending, and minqlx resolves Steam ID or name to a client id before sending ban/unban/tempban/mute/put. listPlayers is the weakest entry in this file. status rests on ONE community reference (tjone270), which marks it server-side and gives exactly the column order linePattern assumes - client id, score, ping, name, lastmsg, address, qport, rate, Steam64 - but that layout is inherited from Quake 3 and has not been checked against live output. A competing roster command is better sourced and is NOT recorded here: the official readme tells an admin to obtain their 64-bit Steam ID by typing /players in the console, and SST sends \"players\" as its roster request and never sends \"status\". players was left out only because no source read shows its output format or whether it prints client ids; check both against a live server before trusting this field. kick has one source too: tjone270 gives clientkick <client id>. QL also has kick, but it takes a player NAME (kick <player name>), so clientkick is used here to keep one identifier across kick and ban. ban {playerId} rests on minqlx alone (console_command \"ban <cid>\") plus the readme's bare mention of a /ban command whose argument it never states; SST does NOT send \"ban\", it sends \"kickban <id>\". The two code bases therefore agree on the identifier but not on the command text - if ban is rejected on a live server, try kickban {playerId}. unban is deliberately omitted: the readme lists /unban without its argument, SST sends unban <name> (its help says \"name is without clantag\"), and minqlx sends unban <client id>; since a banned player is not connected, a client-id {playerId} cannot be right for all of them, and recording a wrong one would produce an unban that reports success and frees nobody. Durable identity is the 64-bit Steam ID: the access list file (g_accessFile, default access.txt, written out before each map load) is keyed by it in the form 76561198072786081|admin, and LinuxGSM puts QL's config dir at serverfiles/baseq3, which is why baseq3/access.txt leads the paths list. The ban role token in that file is unverified, so lineIdPattern matches \"|ban\" as a prefix, which also covers \"|banned\". Editing access.txt directly is only safe while the server is stopped, per the readme. QL also has tempban <client id>, mute/unmute <client id> and opsay <message> (an admin-coloured broadcast) per minqlx, which this schema has no slot for. No motd command exists on the server console; motd on QL servers comes from mods such as minqlx. Confidence is low: transport, ports, cvars and appId would be high on their own (official readme plus the shipped server.cfg plus AMP's independent template plus LinuxGSM), but of the commands only serverinfo and say have two independent sources (tjone270 and SST) - status, clientkick and ban each rest on one, and status has an unrecorded competitor."
+}

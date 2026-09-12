@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "slug": "eco",
+  "game": {
+    "displayName": "Eco Server",
+    "appId": 739590,
+    "aliases": [
+      "Eco",
+      "Eco Global Survival",
+      "Eco Dedicated Server"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 3002,
+    "portSetting": "RconServerPort",
+    "enableSetting": null,
+    "passwordSetting": "RconPassword"
+  },
+  "playerId": {
+    "label": "Username",
+    "example": "Mov51",
+    "pattern": "[A-Za-z0-9_.\\- ]{1,64}"
+  },
+  "commands": {
+    "listPlayers": "manage players",
+    "kick": "kick {playerId}, {reason}",
+    "ban": "ban {playerId}, {reason}, {duration}",
+    "unban": "unban {playerId}",
+    "say": "manage announce {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*(?<playerId>(?<name>[^,\\r\\n]{1,64}?))\\s*$",
+    "skipLinePattern": "^\\s*$|[Oo]nline|[Pp]layers|^-+$"
+  },
+  "sources": [
+    {
+      "url": "https://wiki.play.eco/en/Chat_Commands",
+      "title": "Chat Commands - Eco English Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://wiki.play.eco/en/RCON",
+      "title": "RCON - Eco English Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://wiki.play.eco/en/Server_Configuration/Network.eco",
+      "title": "Server Configuration/Network.eco - Eco English Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.akliz.net/docs/using-rcon-with-your-eco-server",
+      "title": "Using RCON with your Eco Server (Akliz)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://winternode.com/help/games/eco/administration/moderation",
+      "title": "Eco Server Moderation Commands (WinterNode)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2369476908",
+      "title": "Commands for Eco 0.9.x (Steam guide)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/ecojs/rcon",
+      "title": "ecojs/rcon - RCON library for Eco",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://nodecraft.com/support/games/eco/banning-and-unbanning-players-on-your-eco-server",
+      "title": "Banning and Unbanning Players on your Eco Server (Nodecraft)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Eco RCON is a TCP protocol 'loosely based on the Source RCON Protocol standard' (official wiki); standard Source RCON clients such as mcrcon work against it, so flavour is recorded as source. Default TCP port 3002 (Network.eco 'Rcon Server Port'); RCON is enabled simply by setting a non-empty Rcon Password, so there is no separate enable setting. Over RCON the leading slash is omitted (official RCON page: 'you do not need to supply the forward slash like you would in game') and every RCON command runs with server-admin permission; in-game the same commands are typed as /kick, /ban, /unban, /manage players, /manage announce. Arguments are COMMA separated, not space separated: 'ban Mov51, was rude, 2d'. Ban time accepts m/h/d/w suffixes; leaving {duration} empty leaves a trailing comma and yields a permanent ban. kick/ban/unban are the documented short calls for /manage kick, /manage ban, /manage unban. ban/unban also accept an account id, Steam ID64 or SLG id in place of the username, but kick's parameter is typed User, so the username is the identifier that works for all four operations and is what is recorded here. Running 'ban' or 'mute' with no arguments prints the current ban/mute list. There is no MOTD command and no server-info command in the documented command set; 'manage alert' exists as a more intrusive alternative to 'manage announce'. CAVEAT: the exact text format of the 'manage players' response was not found in any primary source, so playerParse is a best-effort one-name-per-line pattern and should be confirmed against a live server before verifiedAt is set. Bans are also persisted to Configs/Users.eco (Nodecraft), but the live unban command makes file editing unnecessary, so no banList is recorded."
+}

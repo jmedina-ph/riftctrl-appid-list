@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-12T15:45:38Z",
+  "games": [
+    {
+      "slug": "american-truck-simulator-dedicated-server",
+      "displayName": "American Truck Simulator Dedicated Server",
+      "appId": 2239530,
+      "aliases": [
+        "American Truck Simulator",
+        "ATS",
+        "ATS Convoy Dedicated Server",
+        "atsserver"
+      ],
+      "transport": "none",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "ark-survival-evolved",
+      "displayName": "ARK: Survival Evolved Dedicated Server",
+      "appId": 376030,
+      "aliases": [
+        "ARK: Survival Evolved",
+        "ARK",
+        "ASE",
+        "ShooterGame"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "arma-3",
+      "displayName": "Arma 3 Server",
+      "appId": 233780,
+      "aliases": [
+        "Arma 3",
+        "ArmA 3",
+        "A3",
+        "Arma 3 Dedicated Server"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "arma-reforger",
+      "displayName": "Arma Reforger Server",
+      "appId": 1874900,
+      "aliases": [
+        "Arma Reforger",
+        "Reforger",
+        "Arma Reforger Dedicated Server"
+      ],
+      "transport": "rcon",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "assetto-corsa",
+      "displayName": "Assetto Corsa Dedicated Server",
+      "appId": 302550,
+      "aliases": [
+        "Assetto Corsa",
+        "AC",
+        "acServer",
+        "Assetto Corsa Server"
+      ],
+      "transport": "none",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "avorion",
+      "displayName": "Avorion Dedicated Server",
+      "appId": 565060,
+      "aliases": [
+        "Avorion",
+        "AvorionServer"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "barotrauma",
+      "displayName": "Barotrauma Dedicated Server",
+      "appId": 1026340,
+      "aliases": [
+        "Barotrauma"
+      ],
+      "transport": "stdin",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "colony-survival",
+      "displayName": "Colony Survival Dedicated Server",
+      "appId": 748090,
+      "aliases": [
+        "Colony Survival",
+        "colserver"
+      ],
+      "transport": "stdin",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "core-keeper",
+      "displayName": "Core Keeper Dedicated Server",
+      "appId": 1963720,
+      "aliases": [
+        "Core Keeper",
+        "CoreKeeperServer",
+        "CK"
+      ],
+      "transport": "none",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "counter-strike-2",
+      "displayName": "Counter-Strike 2 Dedicated Server",
+      "appId": 730,
+      "aliases": [
+        "Counter-Strike 2",
+        "CS2",
+        "cs2",
+        "Counter-Strike: Global Offensive",
+        "CSGO"
+      ],
+      "transport": "rcon",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "counter-strike-source",
+      "displayName": "Counter-Strike: Source Dedicated Server",
+      "appId": 232330,
+      "aliases": [
+        "Counter-Strike: Source",
+        "Counter-Strike Source",
+        "CS:S",
+        "CSS",
+        "srcds cstrike"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "dayz",
+      "displayName": "DayZ Server",
+      "appId": 223350,
+      "aliases": [
+        "DayZ",
+        "DayZ Standalone",
+        "DayZ Dedicated Server",
+        "DZ",
+        "DayZSA"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "eco",
+      "displayName": "Eco Server",
+      "appId": 739590,
+      "aliases": [
+        "Eco",
+        "Eco Global Survival",
+        "Eco Dedicated Server"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "euro-truck-simulator-2-dedicated-server",
+      "displayName": "Euro Truck Simulator 2 Dedicated Server",
+      "appId": 1948160,
+      "aliases": [
+        "ETS2",
+        "Euro Truck Simulator 2",
+        "ETS2 Convoy Dedicated Server",
+        "Euro Truck Simulator 2 Convoy Server"
+      ],
+      "transport": "none",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "factorio",
+      "displayName": "Factorio",
+      "appId": 427520,
+      "aliases": [
+        "Factorio Headless Server",
+        "Factorio Headless",
+        "factorio-headless"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "hurtworld",
+      "displayName": "Hurtworld Dedicated Server",
+      "appId": 405100,
+      "aliases": [
+        "Hurtworld",
+        "HW"
+      ],
+      "transport": "none",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "insurgency-sandstorm",
+      "displayName": "Insurgency: Sandstorm Dedicated Server",
+      "appId": 581330,
+      "aliases": [
+        "Insurgency: Sandstorm",
+        "Insurgency Sandstorm",
+        "Sandstorm",
+        "INS: Sandstorm"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": true,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "killing-floor-2",
+      "displayName": "Killing Floor 2 Dedicated Server",
+      "appId": 232130,
+      "aliases": [
+        "Killing Floor 2",
+        "KF2",
+        "KillingFloor2"
+      ],
+      "transport": "rest",
+      "confidence": "low",
+      "verified": true,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "left-4-dead",
+      "displayName": "Left 4 Dead Dedicated Server",
+      "appId": 222840,
+      "aliases": [
+        "Left 4 Dead",
+        "L4D",
+        "L4D1",
+        "Left4Dead",
+        "left4dead"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "left-4-dead-2",
+      "displayName": "Left 4 Dead 2 Dedicated Server",
+      "appId": 222860,
+      "aliases": [
+        "Left 4 Dead 2",
+        "L4D2",
+        "Left4Dead2",
+        "left4dead2"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "mordhau",
+      "displayName": "MORDHAU Dedicated Server",
+      "appId": 629800,
+      "aliases": [
+        "Mordhau",
+        "MORDHAU"
+      ],
+      "transport": "rcon",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "operation-harsh-doorstop",
+      "displayName": "Operation: Harsh Doorstop Dedicated Server",
+      "appId": 950900,
+      "aliases": [
+        "Operation Harsh Doorstop",
+        "Harsh Doorstop",
+        "OHD"
+      ],
+      "transport": "rcon",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "palworld",
+      "displayName": "Palworld Dedicated Server",
+      "appId": 2394010,
+      "aliases": [
+        "Palworld",
+        "PalServer",
+        "Palworld Server"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "project-zomboid",
+      "displayName": "Project Zomboid Dedicated Server",
+      "appId": 380870,
+      "aliases": [
+        "Project Zomboid",
+        "PZ",
+        "pzserver"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "quake-live",
+      "displayName": "Quake Live Dedicated Server",
+      "appId": 349090,
+      "aliases": [
+        "Quake Live",
+        "QL",
+        "QLDS",
+        "qzeroded"
+      ],
+      "transport": "rcon",
+      "confidence": "low",
+      "verified": false,
+      "updatedAt": "2026-09-12"
+    },
+    {
+      "slug": "rust",
+      "displayName": "Rust Dedicated Server",
+      "appId": 258550,
+      "aliases": [
+        "Rust"
+      ],
+      "transport": "rcon",
+      "confidence": "high",
+      "verified": false,
+      "updatedAt": "2026-09-10"
+    }
+  ]
+}

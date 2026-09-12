@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "slug": "assetto-corsa",
+  "game": {
+    "displayName": "Assetto Corsa Dedicated Server",
+    "appId": 302550,
+    "aliases": [
+      "Assetto Corsa",
+      "AC",
+      "acServer",
+      "Assetto Corsa Server"
+    ]
+  },
+  "transport": "none",
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198012345678",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "banList": {
+    "paths": [
+      "blacklist.txt"
+    ],
+    "lineIdPattern": "(7656119[0-9]{10})"
+  },
+  "sources": [
+    {
+      "url": "https://steamdb.info/app/302550/",
+      "title": "Assetto Corsa Dedicated Server (App 302550)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/pelican-eggs/eggs/blob/master/game_eggs/steamcmd_servers/assetto_corsa/egg-assetto-corsa.json",
+      "title": "Pelican egg: Assetto Corsa (stop = ^C, config cfg/server_cfg.ini)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/rickselby/ac-server-interface",
+      "title": "ac-server-interface - web API built by wrapping the process and config files",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/germanrcuriel/assetto-corsa-server-udp2ws",
+      "title": "assetto-corsa-server-udp2ws - AC dedicated server UDP plugin bridge (kick_user, broadcast_message, send_message)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://wiki.emperorservers.com/assetto-corsa-server-manager/admin-commands",
+      "title": "Assetto Corsa Server Manager - Admin Commands (typed into in-game chat)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.freakhosting.com/games/assetto-corsa/managing-server-blacklist",
+      "title": "Managing the Assetto Corsa server blacklist",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.ggservers.com/en-us/article/how-to-kick-or-ban-players-on-assetto-corsa-oyeriq/",
+      "title": "How to Kick or Ban Players on Assetto Corsa",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://survivalconfigs.com/assetto-corsa",
+      "title": "Assetto Corsa Dedicated Server: acServer, server_cfg.ini & CSP Guide",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://assettocorsamods.net/threads/acsrelay.375/",
+      "title": "ACSRelay - relay that multiplexes the single UDP plugin slot",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "acServer has no RCON, no interactive console and no admin HTTP API, so there is no command text a server manager can send. Evidence: the Pelican/Pterodactyl egg stops it with SIGINT (^C) rather than a console command; third-party panels (ac-server-interface) drive it purely by editing cfg/server_cfg.ini and managing the process; guides describe ADMIN_PASSWORD only as the credential 'used in chat as /admin <pass>'. Moderation exists, but only down two channels this schema cannot express. (1) In-game chat: a connected client that authenticates with /admin <password> can then type /kick, /ban, /kick_id <car_id>, /ban_id <car_id>, /client_list, /next_session, /restart_session - these are typed by a player in the game client, not by the host. (2) The binary UDP plugin protocol configured by UDP_PLUGIN_ADDRESS / UDP_PLUGIN_LOCAL_PORT in server_cfg.ini, which carries KICK_USER, BROADCAST_CHAT and SEND_CHAT; it is not text, must be configured before the server starts, and accepts only one plugin (ACSRelay exists to multiplex that single slot). HTTP_PORT (default 8081) serves read-only lobby/entry-list JSON (/INFO, /JSON) for Content Manager and the lobby, not admin actions. Bans land as one SteamID64 per line in blacklist.txt in the server root, read into memory at startup, so deleting a line needs a server restart. Disagreement: the Assetto Corsa Server Manager documentation (mirrored by Emperor Servers and Chiphead) lists /unban <GUID>, /ban_list and /guid_list as chat commands, which hosting docs and older command lists do not mention; those may be Server Manager or Custom Shaders Patch additions rather than vanilla acServer, and were not confirmed. XGamingServer's page additionally claims a server-side console accepting bare 'kick'/'ban'/'clients'/'quit'; no other source supports that and it is treated as wrong."
+}

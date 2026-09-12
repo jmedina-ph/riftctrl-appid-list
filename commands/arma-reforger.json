@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "slug": "arma-reforger",
+  "game": {
+    "displayName": "Arma Reforger Server",
+    "appId": 1874900,
+    "aliases": [
+      "Arma Reforger",
+      "Reforger",
+      "Arma Reforger Dedicated Server"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "custom",
+    "defaultPort": 19999,
+    "portSetting": "rcon.port",
+    "enableSetting": null,
+    "passwordSetting": "rcon.password"
+  },
+  "playerId": {
+    "label": "Session player ID",
+    "example": "3",
+    "pattern": "[0-9]{1,4}"
+  },
+  "commands": {
+    "listPlayers": "#players",
+    "kick": "#kick {playerId}",
+    "ban": "#ban create {playerId} {duration} {reason}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*(?<playerId>\\d+)[\\s:.)\\]]+(?<name>.+?)(?:\\s*[(\\[]?(?<accountId>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})[)\\]]?)?\\s*$",
+    "skipLinePattern": "^\\s*(?:$|[-=]{2,}|\\[#\\]|ID\\b|Player|\\(\\d+ player)"
+  },
+  "sources": [
+    {
+      "url": "https://community.bistudio.com/wiki/Arma_Reforger:Server_Management",
+      "title": "Arma Reforger: Server Management - admin command list and RCON permission matrix",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/Arma_Reforger:Server_Config",
+      "title": "Arma Reforger: Server Config - rcon block, default port 19999",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/Arma_Reforger:Server_Hosting",
+      "title": "Arma Reforger: Server Hosting - BEServer_x64.cfg RCon port and password",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://terabit.io/kb/arma-reforger-rcon-admin-commands",
+      "title": "Arma Reforger Admins and BattlEye RCON: Setup and Commands",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://xgamingserver.com/tools/arma-reforger/rcon-commands",
+      "title": "Arma Reforger RCON Command Reference",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Reforger has its own RCON listener declared in the server config JSON under the top-level \"rcon\" object (rcon.address, rcon.port default 19999/UDP, rcon.password, rcon.permission, rcon.maxClients, rcon.blacklist, rcon.whitelist). It speaks the BattlEye RCon wire protocol, not Valve Source RCON, hence flavour \"custom\". There is no boolean enable setting: RCON is off until rcon.password is set, and rcon.permission MUST be \"admin\" - the alternative \"monitor\" is read-only and will accept #players while silently refusing #kick and #ban. Commands carry the leading # exactly as typed in game chat; Bohemia's Server Management page documents #players, #kick <playerId>, #ban create <playerId or identityId> <durationInSeconds> [reason], #ban remove <identityId>, #ban list [page], #id, #restart, #shutdown, #roles, #login, #logout, and marks all of them available to the RCON Admin role. DURATION IS SECONDS, not minutes. #kick accepts only the transient session playerId reported by #players, which is why playerId is modelled as that integer; #ban create accepts either it or the persistent Bohemia identityId (a UUID). No unban template is recorded because #ban remove takes the identityId only - feeding it a session playerId would match nothing; the identityId is obtainable from #ban list, whose output Bohemia documents as \"BanID ; Player UID ; Duration\". NO BROADCAST COMMAND EXISTS: Bohemia documents no say/message/announce, and commands.say is therefore omitted rather than guessed. Disagreement noted: xgamingserver's reference lists a bare \"say <message>\" flagged as Arma 3 legacy and \"likely silently dropped\", which is consistent with it not existing here. Confidence is low despite three sources agreeing on the command text because Bohemia publishes no sample of the #players response and no independent source quotes one, so playerParse.linePattern is a deliberately tolerant best effort (leading index, name, optional trailing UUID) that has not been matched against real output - it is the field to check first on verification."
+}

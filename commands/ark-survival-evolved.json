@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "slug": "ark-survival-evolved",
+  "game": {
+    "displayName": "ARK: Survival Evolved Dedicated Server",
+    "appId": 376030,
+    "aliases": [
+      "ARK: Survival Evolved",
+      "ARK",
+      "ASE",
+      "ShooterGame"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27020,
+    "portSetting": "RCONPort",
+    "enableSetting": "RCONEnabled",
+    "passwordSetting": "ServerAdminPassword"
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198025588951",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "commands": {
+    "listPlayers": "ListPlayers",
+    "kick": "KickPlayer {playerId}",
+    "ban": "BanPlayer {playerId}",
+    "unban": "UnbanPlayer {playerId}",
+    "say": "Broadcast {message}",
+    "motd": "SetMessageOfTheDay {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*\\d+\\.\\s+(?<name>[^,]+),\\s+(?<playerId>[0-9a-fA-F]{16,32})\\s*$",
+    "skipLinePattern": "^\\s*No Players Connected"
+  },
+  "sources": [
+    {
+      "url": "https://ark.wiki.gg/wiki/Console_commands",
+      "title": "Console commands - ARK Official Community Wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/lhw/go-pkg-ark/blob/master/arkrcon/arkrcon.go",
+      "title": "go-pkg-ark arkrcon.go - ARK RCON client (command text and ListPlayers parsing)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=479837541",
+      "title": "RCON Server Administration (Steam guide)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.akliz.net/docs/use-rcon-with-your-ark-server",
+      "title": "Using RCON with your ARK Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://ark.wiki.gg/wiki/Dedicated_server_setup",
+      "title": "Dedicated server setup - ARK Official Community Wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/arkmanager/ark-server-tools/blob/master/tools/arkmanager",
+      "title": "arkmanager (ark-server-tools) - uses rconcmd listplayers / broadcast",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Valve Source RCON. Enable with RCONEnabled=True, RCONPort=27020 and ServerAdminPassword=<pw> in [ServerSettings] of ShooterGame/Saved/Config/{WindowsServer,LinuxServer}/GameUserSettings.ini (or as ?-separated launch args); the Steam RCON guide and Akliz both name those three settings and the wiki's dedicated-server setup page lists 'TCP 27020 RCON'. PORT CAVEAT: 27020 is what the docs and hosts use, but it is a convention rather than a value any source states the binary falls back to - arkmanager assumes 32330 when RCONPort is absent from the config - so read RCONPort from GameUserSettings.ini rather than trusting the default. Over RCON the connection is already authenticated as admin, so commands are sent WITHOUT the 'cheat' prefix the in-game console needs (the wiki shows 'cheat ListPlayers' because it documents the client console; the Steam RCON guide and both RCON clients send bare 'listplayers'). Commands are case-insensitive; PascalCase here matches the wiki. ListPlayers returns one line per player as '0. PlayerName, 76561198025588951' and the literal 'No Players Connected' when empty (the arkrcon.go client parses it with \\d+\\. ([^,]+), (\\d+)). KickPlayer/BanPlayer/UnbanPlayer moderate by SteamID64 - NOT by character or Steam display name - so the roster id from ListPlayers is what must be passed; the wiki types BanPlayer's argument as <SteamID> Integer[64] and arkrcon.go sends kickplayer/banplayer/unbanplayer <steam64>, expecting '<steam64> Kicked/Banned/Unbanned' back. On crossplay (Epic/EOS) servers that trailing id is a 32-character hex EOS id instead, which is why the parse pattern accepts both hex widths even though playerId.pattern describes only the SteamID64 form. Bans are immediate and persistent and UnbanPlayer reverses them live, so no banList block is recorded - sources disagree on where the local ban file lives (ShooterGame/Binaries/<platform>/banlist.txt vs ShooterGame/Saved), and the only ban file ARK documents as a setting is the shared, remote BanListURL= in GameUserSettings.ini, which is a subscribed list rather than the server's own. 'say' uses Broadcast (full-screen message to everyone); ServerChat posts into the chat box instead. motd is the weakest entry here: SetMessageOfTheDay {message} is confirmed only by arkrcon.go (which records the reply 'Message of set to <motd>'), while the core four are each carried by two or more sources - drop it before doubting the rest. No server-info command exists over RCON (GetGameLog only works with -servergamelog), so commands.info is omitted. SaveWorld and DoExit exist for lifecycle work but are outside this schema's four operations. ARK: Survival Ascended is a separate app (2430930) and is not covered by this file."
+}

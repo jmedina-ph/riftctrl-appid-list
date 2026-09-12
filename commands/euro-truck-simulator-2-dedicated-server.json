@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "slug": "euro-truck-simulator-2-dedicated-server",
+  "game": {
+    "displayName": "Euro Truck Simulator 2 Dedicated Server",
+    "appId": 1948160,
+    "aliases": [
+      "ETS2",
+      "Euro Truck Simulator 2",
+      "ETS2 Convoy Dedicated Server",
+      "Euro Truck Simulator 2 Convoy Server"
+    ]
+  },
+  "transport": "none",
+  "sources": [
+    {
+      "url": "https://modding.scssoft.com/wiki/Documentation/Tools/Dedicated_Server",
+      "title": "Documentation/Tools/Dedicated Server - SCS Modding Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://blog.scssoft.com/2022/12/convoy-dedicated-servers-support.html",
+      "title": "Convoy: Dedicated Servers Support - SCS Software blog",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2900682260",
+      "title": "Euro Truck Simulator 2 - Dedicated Server Setup (Steam guide)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/LsHallo/ets2-dedicated-convoy-server/blob/master/README.md",
+      "title": "LsHallo/ets2-dedicated-convoy-server README",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://truck-simulator.fandom.com/wiki/Dedicated_Servers",
+      "title": "Dedicated Servers - Truck Simulator Wiki (Fandom)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://help.freakhosting.com/games/euro-truck-simulator-2/admin-commands-and-moderation",
+      "title": "How to Use Admin Commands & Moderation in ETS2 (FreakHosting)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "The ETS2/ATS convoy dedicated server has no command channel: no RCON, no admin REST API, and no interactive server console - the eurotrucks2_server process only prints a log and is stopped with Ctrl+C. SCS's own documentation (modding wiki) lists exactly three in-game moderator chat commands - /set_time <HH:MM>, /set_rain_factor <value from 0 to 1> and /help - and they are typed by a moderator inside the game client, not sent to the server by an operator. Moderators are pre-declared by Steam ID64 in server_config.sii (moderator_list: N / moderator_list[0]: 76561198001220177) and cannot be promoted mid-session. No kick, ban, unban, player-list or broadcast command exists anywhere in SCS's documentation; the only access control the server offers is the 'password' attribute in server_config.sii and the 8-player max_players cap. SCS's launch blog says 'more extensive tools and moderation features' are planned, which is consistent with none existing today. SOURCE DISAGREEMENT: two secondary pages publish commands that do not exist - FreakHosting lists /kick <ID>, /ban <ID> and /blacklist, and the Truck Simulator Fandom wiki lists /kick, /ban, /reload plus admin_config.sii, banlist.txt and whitelist.txt files. None of these commands, files or config attributes appear in SCS's documentation or in the dedicated server package, and they are recorded here only so a later reviewer does not mistake them for evidence. The 'export_server_packages' console command sometimes cited is a GAME CLIENT console command (enabled with uset g_console \"1\") used to generate server_packages.sii; it is not a server command. Moderation therefore has to happen at the host level."
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "hurtworld",
+  "game": {
+    "displayName": "Hurtworld Dedicated Server",
+    "appId": 405100,
+    "aliases": [
+      "Hurtworld",
+      "HW"
+    ]
+  },
+  "transport": "none",
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198043215678",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "banList": {
+    "paths": [
+      "banlist.txt"
+    ],
+    "lineIdPattern": "(7656119[0-9]{10})"
+  },
+  "sources": [
+    {
+      "url": "https://oxidemod.org/threads/rcon-tool.13259/",
+      "title": "Oxide forum - RCON tool? (Wulf, Community Admin: \"Hurtworld has no RCON or remote management yet\")",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://umod.org/community/hurtworld/41922-rcon-error-when-using-plugin",
+      "title": "uMod community - RCON error when using plugin (Wulf: \"Hurtworld doesn't have RCON without Oxide\")",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/utkuc/hurtworld-rcon",
+      "title": "utkuc/hurtworld-rcon - must run on the server machine, requires a display, not real RCON",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/GameServerManagers/LinuxGSM/blob/master/lgsm/config-default/config-lgsm/hwserver/_default.cfg",
+      "title": "LinuxGSM hwserver default config (appid=\"405100\", consoleinteract=\"no\", no rcon settings)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://www.battlemetrics.com/rcon/compatibility",
+      "title": "BattleMetrics RCON compatibility table (Hurtworld absent)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://hurtworld.fandom.com/wiki/Hosting_A_Server",
+      "title": "Hosting A Server - Hurtworld Wiki on Fandom (community-run, not official)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://survivalservers.com/wiki/index.php?title=How_to_Create_a_Hurtworld_Dedicated_Server_Guide",
+      "title": "Hurtworld dedicated server guide (reproduces the game's built-in command help)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://oxidemod.org/threads/where-are-bans-stored.13430/",
+      "title": "Oxide forum - Where are bans stored? (Hurtworld banlist.txt in the install root)",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "No command channel a RIFT//CTRL-style manager can reach on a vanilla server. uMod/Oxide Community Admin Wulf wrote in 2016 that \"Hurtworld has no RCON or remote management yet, so the only way would be to add RCON (already an open issue) or use the server console in combination with external scripts\"; the only third-party tool (utkuc/hurtworld-rcon) says it \"must be runned from server's machine(at least until devs implement some sort of real rcon thing)\" and \"This Tool requires Display option and will not run headless\"; LinuxGSM's hwserver config (appid 405100) ships consoleinteract=\"no\" and defines no rcon settings, i.e. the -batchmode -nographics server is not driven through stdin; and Hurtworld does not appear in BattleMetrics' RCON compatibility table. IMPORTANT CAVEAT, corrected on review: Wulf's later uMod post says \"Hurtworld doesn't have RCON without Oxide, but the RCON implementation may not be fully working with oxide as well\" - so the accurate claim is that the BASE GAME ships no RCON, while an Oxide/uMod-modded server may expose a partially working one. transport \"none\" is therefore the right answer for an unmodded server only; a manager that detects Oxide should probe rather than assume. Administration is otherwise in-game: a Steam64 ID is granted admin with addadmin (in the -exec string or autoexec.cfg, per the Fandom hosting page and LinuxGSM's startparameters), then that admin uses the in-game F1 console, where the survivalservers reproduction of the built-in help documents \"rcon <command>\" (\"Executes a command on the server as if it was typed directly into its console\") and kick <guid> <reason>. Those are client-side and cannot be driven by a server manager, so they are deliberately NOT in a commands block - use the host-level floor instead. serverstatus and adminmessage are widely repeated in community lists but were not confirmed on any source opened for this file; treat them as unverified. Bans persist to banlist.txt in the server install root (single community source; line format not verified, so lineIdPattern simply pulls any Steam64 out of a line), which makes editing that file plus a restart the practical remote ban path. Source disagreement to be aware of: some hosting knowledge bases publish a \"Hurtworld admin commands\" list containing ownerid, moderatorid, mutevoice, mutechat, status and weather - that is Rust's command set copied wholesale and does not apply to Hurtworld. The built-in help documents kick <guid> <reason> (a GUID prefix, not a full Steam64), while community and host pages document ban/unban by Steam64; that inconsistency is unresolved and is another reason this file is low. Confidence is low because the \"none\" verdict rests on absence-of-RCON statements from 2016 rather than a developer statement, the Oxide exception above, and the banlist.txt detail having a single source."
+}

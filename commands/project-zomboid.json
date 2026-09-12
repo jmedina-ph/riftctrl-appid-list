@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "slug": "project-zomboid",
+  "game": {
+    "displayName": "Project Zomboid Dedicated Server",
+    "appId": 380870,
+    "aliases": [
+      "Project Zomboid",
+      "PZ",
+      "pzserver"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": "RCONPort",
+    "enableSetting": null,
+    "passwordSetting": "RCONPassword"
+  },
+  "playerId": {
+    "label": "Username",
+    "example": "SurvivorJoe",
+    "pattern": "[A-Za-z0-9_.\\-]{1,32}"
+  },
+  "commands": {
+    "info": "showoptions",
+    "listPlayers": "players",
+    "kick": "kickuser \"{playerId}\" -r \"{reason}\"",
+    "ban": "banuser \"{playerId}\" -r \"{reason}\"",
+    "unban": "unbanuser \"{playerId}\"",
+    "say": "servermsg \"{message}\""
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^-\\s*(?=(?<playerId>.+?)\\s*$)(?<name>.+?)\\s*$",
+    "skipLinePattern": "^[^-]"
+  },
+  "sources": [
+    {
+      "url": "https://github.com/jmwhitworth/zomboid_rcon/blob/main/zomboid_rcon/ZomboidRcon.py",
+      "title": "zomboid_rcon - command builders aligned to the Build 42.20.2 admin command list",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://supercraft.host/wiki/project-zomboid/console_commands/",
+      "title": "Project Zomboid Console Commands (2026): Full Admin Command List",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://scalacube.com/help/gameservers/project-zomboid/how-to-use-admin-commands-on-project-zomboid",
+      "title": "How to Use Admin Commands on Project Zomboid",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://xgamingserver.com/docs/project-zomboid/rcon",
+      "title": "How to Set Up RCON on Your Project Zomboid Server",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/Renegade-Master/zomboid-dedicated-server",
+      "title": "zomboid-dedicated-server - RCON_PORT 27015 mapped to RCONPort/RCONPassword",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://pzwiki.net/wiki/Admin_commands",
+      "title": "PZwiki - Admin commands (Build 42 command list zomboid_rcon tracks)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Commands are sent over RCON without a leading slash; the slash seen in wiki and blog write-ups is the in-game admin-chat form. zomboid_rcon builds exactly these words - players, kickuser, banuser, unbanuser, servermsg, showoptions - and SuperCraft, ScalaCube and XGamingServer independently list the same syntax with the username quoted and -r \"reason\" appended. Project Zomboid moderates by USERNAME, not Steam ID: kickuser/banuser/unbanuser take the account name. There are separate banid/unbanid commands that take a Steam ID, and banuser also accepts -ip (ban the IP) and, on Build 42, -s (also ban the Steam ID); neither extra flag is used in the templates here because both widen the ban beyond what a plain ban button should do. Bans have no duration - the game has no timed ban - so ban carries no {duration}. showoptions is used as info because it is the only command that reports current server state; there is no serverinfo command. No motd command exists: the welcome message is the ServerWelcomeMessage .ini option, changeable with changeoption plus reloadoptions rather than a broadcast-style command. CAUTION on servermsg: zomboid_rcon replaces spaces with underscores before sending 'for compatibility', while SuperCraft, ScalaCube and XGamingServer all show a quoted multi-word message working; the quoted form is recorded here as the majority reading, and a caller seeing one-word-only output should fall back to underscores. UNCORROBORATED: playerParse was not confirmed against a captured 'players' response by any source reached - every guide describes the command without showing output. It is written to be tolerant: the header line ('Players connected (n):') and anything else not starting with '-' is skipped, and each remaining '-name' line yields the name as both display name and id. SuperCraft says Build 42 also prints an access level per player, which would break the whole-line capture; treat this block as the first thing to check on a live server. No banList block is recorded: Project Zomboid keeps bans inside the SQLite world database (db/<servername>.db), not in a line-oriented text file, so there is nothing a lineIdPattern could read - unbanuser and unbanid are the supported route. One hosting blog (WinterNode) publishes '/kick PlayerName' and '/banuser PlayerName true'; Project Zomboid has no 'kick' command and banuser takes no trailing boolean, so that source was discarded."
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "factorio",
+  "game": {
+    "displayName": "Factorio",
+    "appId": 427520,
+    "aliases": [
+      "Factorio Headless Server",
+      "Factorio Headless",
+      "factorio-headless"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": null,
+    "portSetting": "--rcon-port",
+    "enableSetting": null,
+    "passwordSetting": "--rcon-password"
+  },
+  "playerId": {
+    "label": "Username",
+    "example": "EngineerBob",
+    "pattern": "[A-Za-z0-9_.-]{1,60}"
+  },
+  "commands": {
+    "info": "/version",
+    "listPlayers": "/players online",
+    "kick": "/kick {playerId} {reason}",
+    "ban": "/ban {playerId} {reason}",
+    "unban": "/unban {playerId}",
+    "say": "{message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^\\s*(?<playerId>(?<name>[A-Za-z0-9_.-]+))(?: \\(online\\))?\\s*$",
+    "skipLinePattern": "^\\s*(Online )?[Pp]layers \\(\\d+\\)"
+  },
+  "sources": [
+    {
+      "url": "https://wiki.factorio.com/Console",
+      "title": "Console - Official Factorio Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://wiki.factorio.com/Command_line_parameters",
+      "title": "Command line parameters - Official Factorio Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://wiki.factorio.com/Multiplayer",
+      "title": "Multiplayer - Official Factorio Wiki",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://forums.factorio.com/viewtopic.php?p=671628",
+      "title": "Shout command doesn't work via RCON (Rseding91, Wube)",
+      "kind": "forum",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/mark9064/factorio-rcon-py",
+      "title": "factorio-rcon-py - RCON client for Factorio servers",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/nekomeowww/factorio-rcon-api",
+      "title": "factorio-rcon-api - wrapper for the Factorio headless console",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://zap-hosting.com/guides/docs/factorio-rcon/",
+      "title": "Factorio: RCON - ZAP-Hosting Docs",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Factorio's headless server speaks the Valve Source RCON wire protocol; it is switched on purely by passing --rcon-port N and --rcon-password PASSWORD (or --rcon-bind ADDRESS:PORT) on the command line - there is no setting for it in server-settings.json and Wube define no default port, so defaultPort is null (hosts commonly pick 27015). The same command text also works typed into the headless server's stdin console. Commands are sent with the leading slash exactly as typed in chat (mark9064/factorio-rcon-py sends \"/help\", nekomeowww/factorio-rcon-api sends \"/kick\", \"/ban\", \"/unban\"). say is deliberately NOT /shout: Wube developer Rseding91 states on the official forum that \"the shout command ... was specifically setup to do nothing if called through rcon or the server console\" and that \"just a message is by default sent to all players when done through RCON or the server console\", so the broadcast command is the bare message text. Hosting blogs that list /shout as the server broadcast are wrong on this point. A consequence of the bare-message form: a {message} that itself begins with / will be run as a command, so callers should strip a leading slash. Factorio moderates by account USERNAME, not Steam ID - the headless server has no Steam identity for players. The wiki states multiplayer user names may contain only letters and the characters - _ . ; digits are allowed in practice, so the pattern is slightly wider than the wiki's wording. Names never contain spaces, and Factorio does not parse quotes, so do not quote the argument. /ban is permanent - Factorio has no timed ban, hence no {duration}. There is no motd command; the server description lives in server-settings.json. playerParse is the one part of this file that is inferred rather than quoted: /players online prints a header line \"Online players (N):\" followed by one indented name per line, each usually suffixed \" (online)\" (factorio-rcon-api models a player as username + online flag); the pattern tolerates the suffix being absent. Factorio has no dedicated-server Steam app - 427520 is the game; the headless build is downloaded from factorio.com."
+}

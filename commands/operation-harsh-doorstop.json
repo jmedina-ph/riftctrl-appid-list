@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "slug": "operation-harsh-doorstop",
+  "game": {
+    "displayName": "Operation: Harsh Doorstop Dedicated Server",
+    "appId": 950900,
+    "aliases": [
+      "Operation Harsh Doorstop",
+      "Harsh Doorstop",
+      "OHD"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 7779,
+    "portSetting": "ListenPort",
+    "enableSetting": "bEnabled",
+    "passwordSetting": "Password"
+  },
+  "playerId": {
+    "label": "Player ID",
+    "example": "3",
+    "pattern": "[0-9]{1,10}"
+  },
+  "commands": {
+    "info": "status",
+    "listPlayers": "status",
+    "kick": "kickId {playerId} \"{reason}\"",
+    "ban": "banId {playerId} \"{reason}\" {duration}",
+    "say": "say \"{message}\""
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "(?<playerId>\\d+)\\s+(?<name>.+?)\\s+(?<accountId>BOT|765\\d{14})",
+    "skipLinePattern": "^(Server Name|Local Address|Map|Game Mode|Is In Hibernation|Match State|Session State|\\d+ Human Players)"
+  },
+  "sources": [
+    {
+      "url": "https://github.com/OHD-Tools/OHD-RCON/blob/main/src/OHD.ts",
+      "title": "OHD-RCON (@ohd-tools/rcon) - exact RCON command strings",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/OHD-Tools/OHD-RCON/blob/main/src/parser/rcon_rules/StatusPlayerRule.ts",
+      "title": "OHD-RCON - status output parse rules (player row format, server reply strings)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/CubeCoders/AMPTemplates/blob/main/operation-harsh-doorstop.kvp",
+      "title": "CubeCoders AMP OHD template - SourceRCON, -EnableRCON/-RCONPort/-RCONPassword, port 7779",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://gamepretty.com/operation-harsh-doorstop-how-to-set-up-rcon/",
+      "title": "Operation Harsh Doorstop: How to Set Up RCON (Game.ini [/Script/RCON.RCONServerSystem])",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=2947680709",
+      "title": "EZ Dedicated Server Quickstart Guide (RCON port 7779)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://legionhosting.net/kb/operation-harsh-doorstop/operation-harsh-doorstop-server-admin-guide",
+      "title": "Legion Hosting - OHD Server Admin Guide (conflicting command list)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/Joe-Klauza/ohd-admin-wrapper",
+      "title": "OHD Admin Wrapper (RCON say/kick/ban, Bans.cfg)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Valve Source RCON (AMP's template sets AdminMethod=SourceRCON and the reference client uses packet types 0x02/0x03). Enable it either with launch arguments -EnableRCON -RCONPort=7779 -RCONPassword=<pw> (-RCONIP, -RCONMaxActiveConnections also exist) or in HarshDoorstop/Saved/Config/<Platform>/Game.ini under [/Script/RCON.RCONServerSystem] with bEnabled=True, ListenPort=7779, Password=, MaxActiveConnections=, MaxAuthAttempts=. The setting names here are the ini ones; the launch-argument spellings are RCONPort/RCONPassword. There is no dedicated roster command in the reference client: 'status' returns a header block (Server Name / Local Address / Map / Game Mode / hibernation / match and session state / 'N Human Players, N Bots, N Spectators') followed by one row per player as '<PlayerID> <Name> <SteamID64 or BOT>', which is what listPlayers parses. DISAGREEMENT: Legion Hosting's admin guide lists 'ListPlayers', 'Kick <PlayerID>', 'Ban <PlayerID>'; a Steam discussion and BisectHosting list only 'kick <Username>' and 'ban <Username>'. The @ohd-tools/rcon client, the only source that shows literal wire text, sends kick \"<name>\" \"<reason>\" / kickId <id> \"<reason>\" and ban \"<name>\" \"<reason>\" <duration> / banId <id> \"<reason>\" <duration>, and its parser matches the server's own replies (\"Player with id number 'N' was successfully kicked from the server with reason '...'\"), which confirms the server accepts both a name and a numeric in-session player ID. The numeric ID form is used here because 'status' hands it to us directly and names with spaces are fragile; substitute {playerName} into the quoted-name form if you prefer. Ban duration units are contested inside that same client: the method doc-comment says seconds while its default message and the server's success reply both say minutes - minutes is assumed, 0 = permanent. No unban command was found on any source; bans persist in Bans.cfg alongside Admins.cfg and MapCycle.cfg, but no source gave a confirmed path or line format, so no banList is recorded rather than guessing one. Confidence is low because the exact command text rests on a single project's source code and the hosting-side docs contradict it."
+}

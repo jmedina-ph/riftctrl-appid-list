@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "arma-3",
+  "game": {
+    "displayName": "Arma 3 Server",
+    "appId": 233780,
+    "aliases": [
+      "Arma 3",
+      "ArmA 3",
+      "A3",
+      "Arma 3 Dedicated Server"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "custom",
+    "defaultPort": 2306,
+    "portSetting": "RConPort",
+    "enableSetting": null,
+    "passwordSetting": "RConPassword"
+  },
+  "playerId": {
+    "label": "BE player number",
+    "example": "3",
+    "pattern": "[0-9]{1,3}"
+  },
+  "commands": {
+    "info": "version",
+    "listPlayers": "players",
+    "kick": "kick {playerId} {reason}",
+    "ban": "ban {playerId} {duration} {reason}",
+    "say": "say -1 {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^(?<playerId>\\d+)\\s+\\d{1,3}(?:\\.\\d{1,3}){3}:\\d+\\s+\\d+\\s+(?<accountId>[0-9a-fA-F]{32})\\((?:OK|\\?|-)\\)\\s+(?<name>.+?)(?:\\s+\\(Lobby\\))?$",
+    "skipLinePattern": "^(?:Players on server|\\[#\\]|-{2,}|\\(\\d+ players in total\\))"
+  },
+  "banList": {
+    "paths": [
+      "battleye/bans.txt",
+      "BattlEye/bans.txt"
+    ],
+    "lineIdPattern": "^([0-9a-fA-F]{32}|(?:\\d{1,3}\\.){3}\\d{1,3})"
+  },
+  "sources": [
+    {
+      "url": "https://www.battleye.com/support/documentation/",
+      "title": "BattlEye Documentation - RCon commands and BEServer cfg settings",
+      "kind": "official",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/BattlEye",
+      "title": "BattlEye - Bohemia Interactive Community wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://community.bistudio.com/wiki/Multiplayer_Server_Commands",
+      "title": "Multiplayer Server Commands - Bohemia Interactive Community wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/dotFionn/arma3-rcon",
+      "title": "dotFionn/arma3-rcon - BattlEye RCon client, players output fields",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/l0dac/beCBL",
+      "title": "beCBL - BattlEye Community Ban List, bans.txt line format",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://xgamingserver.com/tools/arma-3/rcon",
+      "title": "Arma 3 RCON Terminal - BattlEye RCon command list and default port 2306",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Arma 3 is commanded over BattlEye RCon, a custom UDP protocol (single-datagram, CRC32-framed) - NOT Valve Source RCON, hence flavour \"custom\". BattlEye requires RConPort and RConPassword to be set explicitly in BattlEye/BEServer_x64.cfg (BEServer.cfg on 32-bit) and publishes no vendor default port; 2306 is the near-universal community convention (game port 2302 + 4) and is what RCon tooling defaults to. There is no separate enable setting - RCon is live once RConPassword is present, so enableSetting is null. kick and ban take the TRANSIENT player number from the left column of the players response, not the GUID: \"kick [player #] [reason]\" and \"ban [player #] [time in minutes] [reason]\", where 0 or an omitted time is permanent. The persistent identity is the 32-hex-character BattlEye GUID, captured as accountId by playerParse; use \"addBan <GUID> <minutes> <reason>\" to ban someone who is not connected. No unban template is recorded because removeBan takes a BAN INDEX from the bans command, not a player identifier - substituting a player id there would remove the wrong ban. Names of players still in the lobby are suffixed \" (Lobby)\" and GUIDs carry a (OK)/(?)/(-) verification suffix; both are stripped by linePattern. say -1 broadcasts to everyone; say <player #> whispers. There is no MOTD command over RCon (the MOTD is set by motd[] in server.cfg). Game-server commands prefixed with # (#shutdown, #lock, #userlist, #mission) are relayed through the same RCon socket, but the in-game admin commands #kick and #exec ban documented on the Multiplayer Server Commands wiki page are a separate channel typed into chat after #login and are not what this file sends. bans.txt lines are \"<GUID or IP> <minutes remaining or -1> <reason>\"; its location follows the -bepath launch argument when one is given."
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "slug": "mordhau",
+  "game": {
+    "displayName": "MORDHAU Dedicated Server",
+    "appId": 629800,
+    "aliases": [
+      "Mordhau",
+      "MORDHAU"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 7778,
+    "portSetting": "RconPort",
+    "enableSetting": null,
+    "passwordSetting": "RconPassword"
+  },
+  "playerId": {
+    "label": "PlayFab ID",
+    "example": "A1B2C3D4E5F60718",
+    "pattern": "[0-9A-F]{14,16}"
+  },
+  "commands": {
+    "info": "Info",
+    "listPlayers": "PlayerList",
+    "kick": "Kick {playerId} {reason}",
+    "ban": "Ban {playerId} {duration} {reason}",
+    "unban": "Unban {playerId}",
+    "say": "Say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "(?<playerId>[0-9A-F]{14,16}), (?<name>[^,]+)"
+  },
+  "sources": [
+    {
+      "url": "https://mordhau.fandom.com/wiki/Dedicated_Server_Hosting_Guide",
+      "title": "Dedicated Server Hosting Guide - Mordhau Wiki",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/Tom-Beijner/Mordhau-RCON/blob/master/src/structures/Rcon.ts",
+      "title": "Mordhau-RCON - Rcon.ts (command strings actually sent)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://pingperfect.com/index.php/knowledgebase/782/Mordhau--RCON-Commands-and-How-to-Use-RCON.html",
+      "title": "Mordhau | RCON Commands and How to Use RCON - Pingperfect",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/CubeCoders/AMPTemplates/blob/main/mordhauconfig.json",
+      "title": "CubeCoders AMP Mordhau template (RconPort / RconPassword / RconTimeout settings, port 7778)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/CubeCoders/AMPTemplates/blob/main/mordhau.kvp",
+      "title": "CubeCoders AMP Mordhau meta (AdminMethod=SourceRCON, -RconPort launch arg)",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://ggservers.com/knowledgebase/article/mordhau-full-console-command-list/",
+      "title": "Mordhau Full Console Command List - GGServers (outdated, steamid64)",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "low",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "RCON is Valve Source RCON on its own TCP port; Mordhau additionally pushes unsolicited broadcast packets on the same socket after 'listen <event>' is issued, so a client must tolerate replies it did not ask for. Enable it in Mordhau/Saved/Config/<Platform>/Game.ini under [/Script/Mordhau.MordhauGameSession] by setting RconPassword (and RconPort / RconTimeout); there is no separate enable flag - a blank RconPassword leaves RCON off. -RconPort=<n> also works as a launch argument (CubeCoders AMP passes exactly that, and its mordhau.kvp sets AdminMethod=SourceRCON). 7778 is AMP's default, not a value the game ships; the port must be set explicitly. Commands are case-insensitive: the wiki and hosting docs write PlayerList/Kick/Ban, the Mordhau-RCON bot sends playerlist/kick/ban. Players are moderated by PlayFab ID since the 2021 PlayFab account migration; kick/ban also accept a player name. UNRESOLVED - BAN ARGUMENT ORDER: the Mordhau wiki's RCON table and Pingperfect (which reads as a copy of it) give 'Ban <player> <reason> <duration>', while the Mordhau-RCON bot's wire text is 'ban <id> <duration> <reason>' and the same wiki's in-game console row also puts duration before reason. Duration-before-reason is recorded here because reason is trailing free text that may contain spaces, but no two independent sources agree on it, so ban is UNCONFIRMED - do not ship a timed ban without live-testing it. Ban duration is in minutes, 0 = permanent, and 'banlist' returns lines of '<PlayFabID>, <minutes>'. 'PlayerList' returns one line per player beginning with the PlayFab ID and profile name, comma-space separated (ping and team follow); the bot parses it with split(', ') taking fields 0 and 1. Info/Unban/Say/PlayerList/Kick are each corroborated by the wiki and the bot's source independently, though Pingperfect writes 'serverinfo' rather than 'info' - the two stronger sources say 'info'. GGServers' list is older still: it says username/steamid64 for kick/ban/unban and shows no duration or reason argument at all, which the PlayFab migration made wrong. NO motd KEY: 'SetMotd <url>' exists but sets the web page URL shown to joining players, not free-text message-of-the-day prose, so it is deliberately not recorded as commands.motd - substituting a {message} there would ship a button that silently does the wrong thing. Confidence is low because the one core operation whose exact text matters most, ban, has its argument order contested between the only two independent sources."
+}

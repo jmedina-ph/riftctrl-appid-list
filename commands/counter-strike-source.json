@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "slug": "counter-strike-source",
+  "game": {
+    "displayName": "Counter-Strike: Source Dedicated Server",
+    "appId": 232330,
+    "aliases": [
+      "Counter-Strike: Source",
+      "Counter-Strike Source",
+      "CS:S",
+      "CSS",
+      "srcds cstrike"
+    ]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "source",
+    "defaultPort": 27015,
+    "portSetting": null,
+    "enableSetting": null,
+    "passwordSetting": "rcon_password"
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "STEAM_0:1:12345678",
+    "pattern": "STEAM_[0-9]:[01]:[0-9]+"
+  },
+  "commands": {
+    "info": "status",
+    "listPlayers": "status",
+    "ban": "banid {duration} {playerId}",
+    "unban": "removeid {playerId}",
+    "say": "say {message}"
+  },
+  "playerParse": {
+    "mode": "regex",
+    "linePattern": "^#\\s*(?<accountId>[0-9]+)\\s+\"(?<name>[^\"]*)\"\\s+(?<playerId>STEAM_[0-9]:[01]:[0-9]+)",
+    "skipLinePattern": "^(?:#\\s*userid\\b|hostname\\s*:|version\\s*:|udp/ip\\s*:|map\\s*:|players\\s*:|edicts\\s*:|tags\\s*:|account\\s*:|os\\s*:|type\\s*:)"
+  },
+  "banList": {
+    "paths": [
+      "cstrike/cfg/banned_user.cfg",
+      "cfg/banned_user.cfg"
+    ],
+    "lineIdPattern": "(STEAM_[0-9]:[01]:[0-9]+)",
+    "liveUnban": "removeid {playerId}"
+  },
+  "sources": [
+    {
+      "url": "https://developer.valvesoftware.com/wiki/Console_Command_List",
+      "title": "Console Command List - Valve Developer Community (banid, removeid, say, kick; NO kickid entry)",
+      "kind": "wiki",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/alliedmodders/sourcemod/blob/master/core/logic/smn_banning.cpp",
+      "title": "SourceMod core smn_banning.cpp - issues 'banid %d %s', 'removeid %s', 'writeid'",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://github.com/alliedmodders/sourcemod/blob/master/core/PlayerManager.cpp",
+      "title": "SourceMod core PlayerManager.cpp - issues 'kickid %d %s' with the numeric userid",
+      "kind": "code",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://www.gameserverkings.com/knowledge-base/team-fortress-2/admin-commands/",
+      "title": "Source engine RCON admin command reference - 'banid <minutes> <steamid>', 'kickid <userid>'",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://www.gamesclan.net/billing/knowledgebase/39/Counter-Strike-Source-Rcon-Commands.html",
+      "title": "Counter-Strike: Source Rcon Commands - banid/removeid/writeid to banned_user.cfg",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://totalcsgo.com/commands/kickid",
+      "title": "kickid reference - 'kickid <User ID> <Message>'",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    },
+    {
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=472910648",
+      "title": "Admin 101 - shows status output with STEAM_0 uniqueid",
+      "kind": "community",
+      "retrievedAt": "2026-09-12"
+    }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-12",
+  "verifiedAt": null,
+  "notes": "Vanilla Source engine commands only - no SourceMod/Mani assumed. Source RCON is TCP on the game port (27015 by default, moved with -port); there is no separate RCON port or enable setting, setting rcon_password in server.cfg is what turns RCON on. banid takes MINUTES FIRST then the Steam2 authid (banid 0 STEAM_0:1:12345678 = permanent): SourceMod core issues exactly 'banid %d %s' followed by 'writeid' and 'removeid %s' followed by 'writeid', and a Source RCON reference independently documents 'banid <minutes> <steamid>' / 'removeid <steamid>'. IMPORTANT: banid/removeid only change the in-memory list - send 'writeid' afterwards or the ban is lost at the next map change; writeid is omitted from the templates because commands here must be a single line. KICK IS OMITTED ON PURPOSE: every source checked keys kickid to the numeric USERID, not the Steam ID - SourceMod's PlayerManager.cpp issues 'kickid %d %s' with userid, totalcsgo documents 'kickid <User ID> <Message>', the Source RCON reference documents 'kickid <userid> \"<reason>\"', and Valve's Console Command List has no kickid entry at all while describing plain 'kick' as 'Kick a player by slot, userid or name'. No source confirms kickid parsing a Steam2 authid, so kick cannot be templated on {playerId}: read 'status', take the userid captured as accountId, and send 'kickid <userid> <reason>' out of band (or ban then unban). Steam ID is still the right playerId because banid, removeid and cfg/banned_user.cfg are all Steam-ID-based, so a userid would make unban and ban-file reconciliation impossible. status prints the Steam2 form (CS:S emits STEAM_0; the pattern also accepts STEAM_1) - never pass the Steam3 form [U:1:x]. 'say' broadcasts to all players prefixed with 'Console:'. No MOTD command - the MOTD is the cstrike/motd.txt file, so motd is omitted."
+}
