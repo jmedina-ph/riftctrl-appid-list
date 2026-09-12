@@ -52,8 +52,9 @@ jobs:
           files=$(ls commands/*.json 2>/dev/null | grep -Ev '/(index|schema)\.json$' || true)
           [ -z "$files" ] || node scripts/validate-commands.mjs $files
 
+      # No `if:` here on purpose: index.json is regenerated from the files on disk, so a run with no
+      # approved cards can still have a legitimate change to commit (e.g. the first file added by hand).
       - name: Commit and push
-        if: steps.publish.outputs.changed != '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
