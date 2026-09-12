@@ -41,10 +41,21 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage ONLY this job's directory. A second scheduled workflow publishes commands/,
+          # and two jobs staging the same paths is how one silently commits the other's work.
           git add data/
           if git diff --staged --quiet; then
             echo "No changes to publish."
-          else
-            git commit -m "chore: update app list $(date -u +%FT%TZ)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: update app list $(date -u +%FT%TZ)"
+          # Both scheduled jobs push to main, so this one can be rejected non-fast-forward through
+          # no fault of its own. Without this retry the loser's run is discarded with no error
+          # anyone sees. Rebase onto whatever landed while we were running, then try again.
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) - rebasing onto origin/main"
+            git pull --rebase origin main
+          done
+          echo "could not push after 3 attempts" >&2
+          exit 1

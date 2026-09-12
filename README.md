@@ -1,9 +1,19 @@
-# riftctrl-appid-list
+# riftctrl-codex
 
-The RIFT//CTRL Steam app-id list. A scheduled GitHub Action produces `data/riftctrl_appid.json`,
-which the RIFT//CTRL dashboard reads (over the raw URL) as its **first** app-id source.
+Aggregated reference data for **dedicated game servers**. Each dataset here answers a question no public
+API answers completely, and each is published as plain JSON over the raw URL so anything can read it.
 
-## Why this repo exists
+| Directory | What it answers |
+|---|---|
+| [`data/`](#steam-app-ids-data) | What is this game's Steam app id — *including* dedicated-server tool apps |
+| [`commands/`](commands/) | How is this server commanded — list players, kick, ban, say, and over which transport |
+
+Both are produced by scheduled GitHub Actions and are meant to be consumed, not cloned. Built for
+[RIFT//CTRL](https://github.com/jmedina-ph/RIFT_CTRL), useful to any server manager.
+
+---
+
+## Steam app ids (`data/`)
 
 RIFT resolves a game's Steam app id by searching a name against a merged app list. No public web API
 gives a complete one:
@@ -28,15 +38,14 @@ So this repo produces the union of two things:
 file `data/riftctrl_appid.json`. It logs whether Palworld Dedicated Server #2394010 made it in — a
 real check that the server slice is working (no hand-adding).
 
-## One-time setup
+### One-time setup
 
 1. **Free Steam Web API key:** <https://steamcommunity.com/dev/apikey> → sign in → register any
    domain (e.g. `localhost`) → copy the key.
-2. Put these files in a public repo named `riftctrl-appid-list` (preserve the folder layout).
-3. Repo **Settings → Secrets and variables → Actions → New repository secret**: name `STEAM_API_KEY`,
+2. Repo **Settings → Secrets and variables → Actions → New repository secret**: name `STEAM_API_KEY`,
    value = your key.
-4. **Settings → Actions → General → Workflow permissions → Read and write permissions → Save.**
-5. **Actions → Publish Steam app list → Run workflow.** Read the log:
+3. **Settings → Actions → General → Workflow permissions → Read and write permissions → Save.**
+4. **Actions → Publish Steam app list → Run workflow.** Read the log:
    - `[watch] ...` — the watcher's login + how many servers it tracked.
    - `[keyed] ... apps` — the base catalog pulled.
    - `[verify] #2394010 present — final: true/false` — whether the server slice has Palworld yet.
@@ -45,18 +54,45 @@ The watcher fills in over the first days on its own. To have current servers cov
 **seed** `data/tracked_servers.json` once (RIFT will hand you a seeded file); its `applist.apps` is a
 plain `[{appid,name}]` list the watcher then keeps growing.
 
-## Wire it into RIFT//CTRL
+### Wiring it into RIFT//CTRL
 
-On the Core, set the app-list sources env for the `rift-ctrl-web` service so RIFT's list is source #1
-(replace `<user>`):
+**This list is not read by default.** RIFT//CTRL ships three built-in app-id sources (jsnli games,
+jsnli software, dgibbs64 SteamCMD) and this one is added by overriding them. On the Core, set the
+app-list sources env for the `rift-ctrl-web` service so RIFT's list is source #1:
 
 ```
-RIFT_CTRL_STEAM_APPLIST_SOURCES="riftctrl=https://raw.githubusercontent.com/<user>/riftctrl-appid-list/main/data/riftctrl_appid.json,jsnli-games=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/games_appid.json,jsnli-software=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/software_appid.json,dgibbs64=https://raw.githubusercontent.com/dgibbs64/SteamCMD-AppID-List/main/steamcmd_appid.json"
+RIFT_CTRL_STEAM_APPLIST_SOURCES="riftctrl=https://raw.githubusercontent.com/jmedina-ph/riftctrl-codex/main/data/riftctrl_appid.json,jsnli-games=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/games_appid.json,jsnli-software=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/software_appid.json,dgibbs64=https://raw.githubusercontent.com/dgibbs64/SteamCMD-AppID-List/main/steamcmd_appid.json"
 ```
 
 Restart the service, open `/steam-check` → **Refresh now**, and confirm a `riftctrl` row. Searching a
 game whose server the watcher/seed has surfaced will show its dedicated server.
 
+---
+
+## Server-management commands (`commands/`)
+
+One JSON file per game describing how that server is commanded — the transport it answers (RCON, a REST
+admin API, stdin, or none at all) and the exact text for listing players, kicking, banning and
+broadcasting.
+
+This dataset exists because **nothing else publishes it.** The sources RIFT//CTRL aggregates for
+installing and configuring a server — AMP templates, Pelican eggs, PufferPanel, LinuxGSM, WindowsGSM,
+GameDig — none of them cover commanding one.
+
+See [`commands/README.md`](commands/README.md) for the contract and
+[`commands/schema.json`](commands/schema.json) for the authoritative schema.
+
+---
+
 ## Maintenance
 
-None day-to-day — the watcher runs itself and the list only grows.
+The app-list watcher runs itself and the list only grows. Command files are researched, approved by
+hand, and committed by a scheduled job.
+
+**Note for anyone editing the workflows:** two scheduled jobs push to `main` from this repo. Each must
+stage only its own directory, and must `git pull --rebase origin main` before pushing — otherwise the
+second one to finish is rejected and its run is silently lost.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE). Data published here is free to use; please keep the attribution.

@@ -1,9 +1,9 @@
 {
-  "name": "riftctrl-appid-list",
+  "name": "riftctrl-codex",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Daily Steam app-id list for RIFT//CTRL (keyed store list + PICS server watcher).",
+  "description": "Aggregated reference data for dedicated game servers, published for RIFT//CTRL: Steam app ids (keyed store list + PICS server watcher) and per-game server-management commands.",
   "dependencies": {
     "steam-user": "^5.0.0"
   }
