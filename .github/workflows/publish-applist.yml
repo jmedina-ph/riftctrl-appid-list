@@ -8,9 +8,15 @@ name: Publish Steam app list
 # Requires the STEAM_API_KEY repo secret for the base catalog (free — see README). The watcher needs
 # no key.
 
+# SCHEDULE DISABLED 2026-09-11. The app-id dataset is not consumed by anything: RIFT//CTRL resolves
+# app ids from three public lists, and the RIFT_CTRL_STEAM_APPLIST_SOURCES override that would put this
+# one in front of them is set on no Core. Running it every 6 hours produced data nobody read and was the
+# only reason two jobs competed to push to main. The job is kept, not deleted -- it still works, and
+# `workflow_dispatch` runs it on demand if the list is ever wanted again.
+#
+#  schedule:
+#    - cron: "0 */6 * * *" # every 6 hours (keeps the PICS change window small)
 on:
-  schedule:
-    - cron: "0 */6 * * *" # every 6 hours (keeps the PICS change window small)
   workflow_dispatch: {}
 
 permissions:

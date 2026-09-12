@@ -5,13 +5,14 @@ The aggregate cache for [RIFT//CTRL](https://github.com/jmedina-ph/RIFT_CTRL) �
 
 RIFT//CTRL installs and configures game servers without hand-written per-game profiles, by aggregating
 public sources at runtime (CubeCoders AMP templates, Pelican eggs, PufferPanel, LinuxGSM, WindowsGSM,
-GameDig). This repo is for the facts those sources **don't** carry, and which nothing else publishes in
-machine-readable form.
+GameDig). This repo holds what those sources don't carry.
 
-| Directory | Status | What it holds |
-|---|---|---|
-| [`commands/`](commands/) | **Active** | How each server is commanded — list players, kick, ban, say, and over which transport |
-| [`data/`](#steam-app-ids-data--legacy) | Legacy | Steam app ids, including dedicated-server tool apps. Superseded; see below |
+| Directory | What it holds |
+|---|---|
+| [`commands/`](commands/) | How each server is commanded — list players, kick, ban, say, and over which transport |
+| `data/` | Steam app ids, including dedicated-server tool apps |
+
+More datasets will live here. Each is published on its own, so a consumer takes only what it needs.
 
 ---
 
@@ -21,55 +22,39 @@ One JSON file per game describing how that server is commanded: the transport it
 admin API, stdin, or **none at all** — and the exact command text for listing players, kicking, banning
 and broadcasting.
 
-This is the dataset the repo now exists for, because **nothing else publishes it.** Every source
-RIFT//CTRL aggregates covers *installing and configuring* a server. None of them cover *commanding* one.
-That gap is why these files are researched rather than fetched, and why each carries its sources and a
-confidence level with it.
+Nothing else publishes this. Every source RIFT//CTRL aggregates covers *installing and configuring* a
+server; none of them cover *commanding* one. That gap is why these files are researched rather than
+fetched, and why each carries its sources and a confidence level with it.
 
-See [`commands/README.md`](commands/README.md) for the contract and
-[`commands/schema.json`](commands/schema.json) for the authoritative schema.
+- [`commands/README.md`](commands/README.md) — the contract, and the rules that aren't obvious
+- [`commands/schema.json`](commands/schema.json) — the authoritative schema (JSON Schema draft-07)
 
----
-
-## Steam app ids (`data/`) — legacy
-
-**This dataset is not consumed by anything, and is kept for reference rather than use.**
-
-It was built when app-id resolution looked like a problem RIFT//CTRL would have to solve itself. The
-concern was real: the keyed **IStoreService/GetAppList** is store-gated and omits dedicated-server *tool*
-apps (~180k apps, but no Palworld server); the old keyless **ISteamApps/GetAppList/v2** that did list
-tools is dead; and **PICS**, the only source of tool servers, can't be dumped whole — only "what changed
-since X". So this repo pairs a keyed base-catalog pull (`build-applist.mjs`) with a PICS watcher
-(`watch-servers.mjs`) that accumulates dedicated servers into `data/tracked_servers.json` as they get
-patched, and unions the two into `data/riftctrl_appid.json`.
-
-It works. It simply turned out not to be needed: RIFT//CTRL resolves app ids from three public lists
-(jsnli games, jsnli software, dgibbs64 SteamCMD) that cover the cases in practice, and the
-`RIFT_CTRL_STEAM_APPLIST_SOURCES` override that would put this list in front of them is not set on any
-Core. The scheduled job still runs and the file is still current, so the option remains open — but
-nothing reads it today, and the README previously claimed otherwise.
-
-To actually use it, set that env for the `rift-ctrl-web` service so this list is source #1:
-
-```
-RIFT_CTRL_STEAM_APPLIST_SOURCES="riftctrl=https://raw.githubusercontent.com/jmedina-ph/riftctrl-codex/main/data/riftctrl_appid.json,jsnli-games=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/games_appid.json,jsnli-software=https://raw.githubusercontent.com/jsnli/steamappidlist/master/data/software_appid.json,dgibbs64=https://raw.githubusercontent.com/dgibbs64/SteamCMD-AppID-List/main/steamcmd_appid.json"
-```
-
-Restart the service, open `/steam-check` → **Refresh now**, and confirm a `riftctrl` row.
-
-The job needs a free Steam Web API key (<https://steamcommunity.com/dev/apikey>) as the `STEAM_API_KEY`
-repo secret, and **Settings → Actions → General → Workflow permissions → Read and write**.
+Files are researched, approved by hand, and committed by a scheduled job. Approval is a human step on
+purpose: the cost of a wrong command is a moderation action that appears to work and does nothing.
 
 ---
 
-## Maintenance
+## Steam app ids (`data/`)
 
-Command files are researched, approved by hand, and committed by a scheduled job. The app-list watcher
-runs itself and its list only grows.
+`data/riftctrl_appid.json` is the union of two things: a keyed **IStoreService/GetAppList** pull
+(`build-applist.mjs`), which covers everything with a Store page, and a **PICS** watcher
+(`watch-servers.mjs`), which catches dedicated-server *tool* apps as they get patched — those have no
+Store page, so the keyed catalog omits them entirely, and the old keyless endpoint that listed them is
+dead.
 
-**Note for anyone editing the workflows:** two scheduled jobs push to `main` from this repo. Each must
-stage only its own directory, and must rebase-and-retry on a rejected push — otherwise the second one to
-finish is rejected non-fast-forward and its run is silently lost.
+A consumer can read it over the raw URL. In RIFT//CTRL it is opt-in, via the
+`RIFT_CTRL_STEAM_APPLIST_SOURCES` env for the `rift-ctrl-web` service.
+
+The job runs on demand (**Actions → Publish Steam app list → Run workflow**) and needs a free Steam Web
+API key (<https://steamcommunity.com/dev/apikey>) as the `STEAM_API_KEY` repo secret.
+
+---
+
+## Notes for anyone editing the workflows
+
+Jobs here push to `main`. Each must stage only its own directory, and must rebase-and-retry on a rejected
+push — otherwise a job that loses the race is rejected non-fast-forward and its run is silently lost.
+`publish-applist.yml` has the pattern.
 
 ## Licence
 
