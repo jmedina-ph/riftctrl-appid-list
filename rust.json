@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "slug": "rust",
+  "game": {
+    "displayName": "Rust Dedicated Server",
+    "appId": 258550,
+    "aliases": ["Rust"]
+  },
+  "transport": "rcon",
+  "rcon": {
+    "flavour": "custom",
+    "defaultPort": 28016,
+    "enableSetting": "rcon.web",
+    "portSetting": "rcon.port",
+    "passwordSetting": "rcon.password"
+  },
+  "playerId": {
+    "label": "Steam ID",
+    "example": "76561198000000000",
+    "pattern": "7656119[0-9]{10}"
+  },
+  "commands": {
+    "info": "serverinfo",
+    "listPlayers": "playerlist",
+    "kick": "kick \"{playerId}\" \"{reason}\"",
+    "ban": "banid \"{playerId}\" \"{reason}\"",
+    "unban": "unban \"{playerId}\"",
+    "say": "say \"{message}\""
+  },
+  "playerParse": {
+    "mode": "json",
+    "namePath": ["DisplayName"],
+    "playerIdPath": ["SteamID"]
+  },
+  "sources": [
+    { "url": "https://xgamingserver.com/blog/rust-rcon-server-console-commands/", "title": "Rust RCON server console commands", "kind": "community", "retrievedAt": "2026-09-10" },
+    { "url": "https://www.corrosionhour.com/rust-ban-command/", "title": "RUST ban command", "kind": "community", "retrievedAt": "2026-09-10" },
+    { "url": "https://help.serverblend.com/en/article/rust-rcon-server-commands-ohd7z8/", "title": "Rust RCON server commands", "kind": "community", "retrievedAt": "2026-09-10" },
+    { "url": "https://github.com/RustCONxyz/rustcon-js", "title": "rustcon-js WebRCON client", "kind": "code", "retrievedAt": "2026-09-10" }
+  ],
+  "confidence": "high",
+  "researchedAt": "2026-09-10",
+  "verifiedAt": null,
+  "notes": "WebRCON, not Source RCON: a WebSocket at ws://{host}:{port}/{password} carrying JSON frames {Identifier, Message, Name}. rcon.web 1 selects it (the default); rcon.web 0 falls back to Source RCON on the same port. playerlist returns a JSON array of objects with SteamID, DisplayName, Ping, ConnectedSeconds, Health. ban by name requires the player to be online and broadcasts to the server; banid works offline and is silent, so it is the one recorded here. Run server.writecfg after bans to persist them. No Facepunch-official command reference was found; all four sources are community or code."
+}

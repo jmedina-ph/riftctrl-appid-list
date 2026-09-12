@@ -1,0 +1,1 @@
+{"schemaVersion":1,"slug":"enshrouded","game":{"displayName":"Enshrouded"},"transport":"none","commands":{"kick":"/kick {playerId}","ban":"/ban {playerId}"},"sources":[{"url":"https://supercraft.host/wiki/enshrouded/admin_commands/","kind":"community","retrievedAt":"2026-09-10"}],"confidence":"high","researchedAt":"2026-09-10"}

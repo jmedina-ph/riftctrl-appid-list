@@ -1,0 +1,82 @@
+name: Publish approved commands
+
+# Reads the Trello "Approved" list with a READ-ONLY Trello token, checks that Justin approved each
+# card by hand, validates the JSON against commands/schema.json, and commits commands/<slug>.json.
+# Nothing outside GitHub holds write access to this repo.
+
+on:
+  schedule:
+    # Offset from publish-applist.yml ("0 */6 * * *") so the two scheduled jobs do not collide.
+    - cron: "30 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate and report only (no commit)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-approved-commands
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install validator dependencies
+        run: npm install --no-save ajv@8 ajv-formats@3
+
+      - name: Read Trello Approved list, validate, write files
+        id: publish
+        env:
+          TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_APPROVED_LIST_ID: ${{ vars.TRELLO_APPROVED_LIST_ID }}
+          TRELLO_APPROVER_ID: ${{ vars.TRELLO_APPROVER_ID }}
+          ALLOW_APP_MOVES: ${{ vars.ALLOW_APP_MOVES }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        run: node scripts/publish-approved.mjs
+
+      - name: Re-validate every file in commands/
+        run: |
+          files=$(ls commands/*.json 2>/dev/null | grep -Ev '/(index|schema)\.json$' || true)
+          [ -z "$files" ] || node scripts/validate-commands.mjs $files
+
+      - name: Commit and push
+        if: steps.publish.outputs.changed != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage ONLY this job's directory. publish-applist.yml owns data/, and two jobs staging the
+          # same paths is how one silently commits the other's work.
+          git add commands/
+          if git diff --staged --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "commands: publish ${{ steps.publish.outputs.ids }}"
+          # Both scheduled jobs push to main, so this one can be rejected non-fast-forward through no
+          # fault of its own. Rebase onto whatever landed while we were running, then try again.
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) - rebasing onto origin/main"
+            git pull --rebase origin main
+          done
+          echo "could not push after 3 attempts" >&2
+          exit 1
+
+      - name: Fail if any approved card was rejected
+        if: steps.publish.outputs.invalid != '0'
+        run: |
+          echo "::error::${{ steps.publish.outputs.invalid }} approved card(s) were rejected. See the job summary."
+          exit 1
